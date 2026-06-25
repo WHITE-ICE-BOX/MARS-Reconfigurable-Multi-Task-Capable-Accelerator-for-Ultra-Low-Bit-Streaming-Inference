@@ -20,3 +20,12 @@ sudo XILINX_XRT=/usr BOARD=Pynq-Z2 python3 driver.py \
 ```
 Large dataset test inputs (`*_test_x.npy`, ~30 MB) are excluded — regenerate from
 `AI_model_train`. Canonical bitstreams retained per verified md5 mapping.
+
+## Runtime weights (5-dataset switching)
+`MARS_compact_5ds_pe1/runtime_weights/` holds the per-task cfg blobs for **all five
+datasets** — `cifar10/`, `svhn/`, `fashion/`, `stl10/`, `cinic10/` (34 `.bin` each:
+mvau0–5 thresholds, adapter down/up/rc/sign/contrib, FC1/FC2 thresholds, classifier
+weights). A runtime task switch streams one dataset's folder over the cfg_hub. The
+bitstream is named `resizer_3ds_v3` for historical reasons but the single bitstream
+serves all five via these weights (the on-board snapshot had only 3; the complete set
+is restored here from the canonical `sw/runtime_weights`).
