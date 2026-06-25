@@ -87,17 +87,22 @@ class QuantConvAdapter(nn.Module):
         basis_ch = in_channels if mid_basis == 'in' else out_channels
         mid_channels = max(1, basis_ch // reduction)
 
+        # down-projection（降維卷積）。對應硬體 RTL/adapter 的 down ROM。
+        # bias=use_bias 時的這個 Int8 bias 就是 RC(Residual Correction)；
+        # 硬體上不另做加法，而是吸收進 accumulator 的 reset 初值（零成本）。
         self.down = QuantConv2d(
             in_channels=in_channels,
             out_channels=mid_channels,
             kernel_size=kernel_size,
             padding=0,
             bias=use_bias,
-            bias_quant=(Int8Bias if use_bias else None),
+            bias_quant=(Int8Bias if use_bias else None),   # RC bias 量化器
             weight_quant=CommonWeightQuant,
             weight_bit_width=bit_width,
         )
+        # 中間 activation：1-bit 時為 sign（與 backbone 二值 act 一致）→ 硬體 Sign Extract。
         self.act = _adapter_act(bit_width, act_mode=act_mode)
+        # up-projection（升回 out_channels），1x1。對應硬體 up ROM。
         self.up = QuantConv2d(
             in_channels=mid_channels,
             out_channels=out_channels,
@@ -107,12 +112,19 @@ class QuantConvAdapter(nn.Module):
             weight_quant=CommonWeightQuant,
             weight_bit_width=bit_width,
         )
+        # alpha：把 adapter 貢獻量做縮放。scalar=部署版(deployed)；per-channel=accuracy-best。
+        # 硬體以合成期預算的 contribution LUT 實現（Stream_Adder_Threshold），零 DSP。
         if alpha_mode == 'scalar':
             self.alpha = nn.Parameter(torch.tensor(1.0))
         else:
             self.alpha = nn.Parameter(torch.ones(1, out_channels, 1, 1))
 
     def forward(self, x):
+        # 完整 adapter 路徑（對應硬體 4-stage pipeline）：
+        #   down(x)  → S0/S1/S2/S3：讀ROM→XNOR→popcount→accumulate(+RC)
+        #   act(...) → Sign Extract（二值 hidden activation）
+        #   up(...)  → up-projection
+        #   * alpha  → contribution 縮放
         delta = self.alpha * self.up(self.act(self.down(x)))
         # Spatial alignment with backbone (3x3 padding=0 -> H-2, W-2):
         #   kernel=3: down already shrinks 2 px -> match

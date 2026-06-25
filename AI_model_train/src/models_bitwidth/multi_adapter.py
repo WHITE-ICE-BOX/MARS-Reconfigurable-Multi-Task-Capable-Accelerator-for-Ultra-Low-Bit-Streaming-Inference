@@ -56,6 +56,8 @@ class MultiAdapter(nn.Module):
         ])
 
     def forward(self, x):
+        # M 條平行分支各自跑一次 adapter，輸出相加（out = Σ_i branch_i(x)）。
+        # M 越大表達力越強 → 論文 M=1..4 的多 Adapter 擴展即由此而來。
         out = self.branches[0](x)
         for b in self.branches[1:]:
             out = out + b(x)

@@ -88,9 +88,11 @@ class RuntimeSwitcher:
         self.mm = mmap.mmap(fd, CFG_SIZE, offset=cfg_base)
         os.close(fd)
         self.cfg = np.frombuffer(self.mm, dtype=np.uint32)
-        # Build cfg blob per dataset upfront so switch is one bulk write
+        # 開機時先把每個資料集的 cfg blob 預先組好（list of (u32_index, value)），
+        # 之後 switch() 只要一次 bulk numpy 寫入 → 快、且為論文回報的切換延遲來源。
+        # 五個資料集全部支援（runtime_weights/ 內各有一份 per-task 參數）。
         self._cache = {}
-        for ds in ("cifar10", "svhn", "fashion"):
+        for ds in ("cifar10", "svhn", "fashion", "stl10", "cinic10"):
             self._cache[ds] = self._build_blob(ds)
 
     def _unit_word(self, unit, word):
@@ -101,6 +103,8 @@ class RuntimeSwitcher:
         """Pre-compute all (u32_index, value) writes for one dataset."""
         ds_dir = os.path.join(self.weights_root, dataset)
         writes = []
+        # cifar10 是 backbone 原生資料集 → adapter 關閉（直接用 backbone）；
+        # 其餘 target 資料集 → adapter 開啟。
         adapter_on = (dataset != "cifar10")
 
         # === MVAU0 thresh (unit 0 low, byte 0x0000-0x00FC) ===
@@ -180,16 +184,18 @@ class RuntimeSwitcher:
         return (idxs, vals)
 
     def switch(self, dataset):
-        """Apply per-dataset cfg. Returns elapsed ms."""
+        """切換到指定資料集：把預組好的 cfg blob 一次寫進 cfg_hub（記憶體映射）。
+        回傳耗時(ms)。這就是論文「runtime 切換、無 fabric reconfiguration」的動作。"""
         import time
         t0 = time.time()
         idxs, vals = self._cache[dataset]
-        self.cfg[idxs] = vals
+        self.cfg[idxs] = vals          # bulk 寫入 → cfg_hub 將其 demux 到各 MVAU
         return (time.time() - t0) * 1000.0
 
 
 if __name__ == "__main__":
+    # 範例：依序切換五個資料集，印出每次切換的耗時與寫入字數。
     sw = RuntimeSwitcher()
-    for ds in ("cifar10", "svhn", "fashion"):
+    for ds in ("cifar10", "svhn", "fashion", "stl10", "cinic10"):
         ms = sw.switch(ds)
         print(f"Switched to {ds} in {ms:.2f} ms ({len(sw._cache[ds][0])} writes)")

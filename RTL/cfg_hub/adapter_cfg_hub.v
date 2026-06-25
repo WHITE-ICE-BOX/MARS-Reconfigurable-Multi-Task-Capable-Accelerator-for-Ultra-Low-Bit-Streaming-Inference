@@ -109,6 +109,8 @@ module adapter_cfg_hub #(
             mvau4_cfg_wen <= 1'b0;
             mvau5_cfg_wen <= 1'b0;
         end else begin
+            // 預設每拍把 5 個 write-enable 拉低；下方 case 命中時才拉高一拍
+            // → 形成「單拍寫入脈衝」，一次寫一個 word 到對應 MVAU 的 cfg RAM。
             // Default: deassert write enables after one cycle
             mvau1_cfg_wen <= 1'b0;
             mvau2_cfg_wen <= 1'b0;
@@ -138,6 +140,10 @@ module adapter_cfg_hub #(
                 S_AXI_BVALID <= 1'b1;
                 S_AXI_BRESP  <= 2'b00;  // OKAY
 
+                // ── 核心 demux ──
+                // 用位址 [15:13] 判斷這筆寫入屬於哪一個 MVAU（1~5），
+                // 把 word address([12:2]) 與資料轉發到該 MVAU 的 cfg 寫入埠。
+                // PS 端只要照各 MVAU 的 memory map 依序寫，即完成一次「換任務」。
                 // Decode MVAU select and dispatch
                 case (aw_addr_latched[15:13])
                     3'd1: begin
