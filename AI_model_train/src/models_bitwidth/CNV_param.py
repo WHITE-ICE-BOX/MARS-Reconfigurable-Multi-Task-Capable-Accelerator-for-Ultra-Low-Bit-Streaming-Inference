@@ -34,7 +34,10 @@ from models.tensor_norm import TensorNorm
 from .conv_adapter import QuantConvAdapter
 from .multi_adapter import MultiAdapter
 
+# CNV 主幹結構：6 個卷積層 (out_ch, 是否接 MaxPool)。對應硬體 MVAU0..5。
+#   conv0=64, conv1=64+pool, conv2=128, conv3=128+pool, conv4=256, conv5=256
 CNV_OUT_CH_POOL = [(64, False), (64, True), (128, False), (128, True), (256, False), (256, False)]
+# 之後 3 個全連接層 (FC0/FC1/FC2 = 硬體 MVAU6/7/8)
 INTERMEDIATE_FC_FEATURES = [(256, 512), (512, 512)]
 LAST_FC_IN_FEATURES = 512
 POOL_SIZE = 2
@@ -77,6 +80,8 @@ class CNVParam(Module):
                     weight_quant=CommonWeightQuant,
                     weight_bit_width=weight_bit_width))
 
+            # Adapter 只掛在 conv1..conv5（i>0），conv0 不掛（對應硬體：MVAU1-5 有 Adapter、
+            # MVAU0 沒有）。num_branches>1 用 MultiAdapter（M 條分支），=1 用單一 QuantConvAdapter。
             if self.use_adapter and i > 0:
                 num_branches = adapter_config.get('num_branches', 1)
                 if num_branches > 1:
@@ -142,29 +147,36 @@ class CNVParam(Module):
                 mod.weight.data.clamp_(min_val, max_val)
 
     def forward(self, x):
+        # 輸入 [0,1] → [-1,1]（1W1A 量化慣例；對應硬體輸入前處理）。
         x = 2.0 * x - torch.tensor([1.0], device=x.device)
 
         if not self.use_adapter:
+            # 純 backbone：依序跑 QuantIdentity → (Conv→BN→Act→Pool)×6。
             for mod in self.conv_features:
                 x = mod(x)
         else:
+            # 帶 Adapter：每層手動展開，才能在 conv 後把 adapter 貢獻量加進去。
+            # 這裡的 x = x_conv + x_adp 就是硬體 Super Wrapper 的核心：
+            #   x_conv = MVAU 主幹輸出的整數 partial-sum（Path A）
+            #   x_adp  = Adapter 旁路輸出（Path B）
+            #   兩者相加後才進 BN/Act（= 硬體 Stream_Adder_Threshold 的對應）。
             adapter_idx = 0
-            x = self.conv_features[0](x)
+            x = self.conv_features[0](x)          # 輸入端 QuantIdentity
             ptr = 1
             for i, (_, is_pool_enabled) in enumerate(CNV_OUT_CH_POOL):
-                x_in = x
-                x_conv = self.conv_features[ptr](x); ptr += 1
+                x_in = x                          # adapter 與 conv 吃同一份輸入（Stream_Splitter）
+                x_conv = self.conv_features[ptr](x); ptr += 1   # MVAU 主幹卷積
                 if i > 0:
-                    x_adp = self.adapters[adapter_idx](x_in)
-                    # Adapter 3x3 padding=0 output already matches backbone 3x3 padding=0 spatial size
+                    x_adp = self.adapters[adapter_idx](x_in)    # Adapter 旁路（conv1..5 才有）
+                    # Adapter 3x3 padding=0 輸出空間尺寸已與 backbone 對齊，可直接相加
                     x = x_conv + x_adp
                 else:
-                    x = x_conv
+                    x = x_conv                    # conv0 無 adapter
                 adapter_idx += 1
                 x = self.conv_features[ptr](x); ptr += 1  # BN
-                x = self.conv_features[ptr](x); ptr += 1  # Act
+                x = self.conv_features[ptr](x); ptr += 1  # Act（1-bit=sign）
                 if is_pool_enabled:
-                    x = self.conv_features[ptr](x); ptr += 1  # Pool
+                    x = self.conv_features[ptr](x); ptr += 1  # MaxPool
 
         x = x.view(x.shape[0], -1)
         for mod in self.linear_features:
@@ -179,6 +191,8 @@ def cnv_param(cfg):
     num_classes = cfg.getint('MODEL', 'NUM_CLASSES')
     in_channels = cfg.getint('MODEL', 'IN_CHANNELS')
 
+    # 從 cfg 的 [ADAPTER] 區段讀 adapter 幾何（由 bnn_pynq_train_bitwidth.build_model 寫入）。
+    # 無此區段 → adapter_config=None → 純 backbone（full_ft / pretrain）。
     adapter_config = None
     if cfg.has_section('ADAPTER'):
         num_branches = cfg.getint('ADAPTER', 'NUM_BRANCHES')

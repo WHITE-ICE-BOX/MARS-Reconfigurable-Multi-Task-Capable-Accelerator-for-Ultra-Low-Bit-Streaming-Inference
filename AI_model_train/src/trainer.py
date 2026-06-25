@@ -148,7 +148,8 @@ class Trainer(object):
                 new_state_dict[name] = v
             state_dict = new_state_dict
 
-            # 3. 移除 FC3
+            # 3. 移除舊分類頭（linear_features.6 = 最後一層 FC / classifier）：
+            #    遷移到新 target 時類別投影要重學，故不載入來源的分類頭權重。
             keys_to_remove = [k for k in state_dict.keys() if 'linear_features.6' in k]
             for k in keys_to_remove: del state_dict[k]
             
@@ -163,6 +164,10 @@ class Trainer(object):
             else:
                 print("✅ Backbone 權重載入成功！(Verified)")
 
+        # ★ PEFT 核心：adapter 模式下凍結 backbone。
+        #   只有「adapters」與「linear_features.6（新分類頭）」可訓練；
+        #   其餘（backbone 的 conv1-6 + FC1/FC2）requires_grad=False 不更新。
+        #   → 這就是參數高效率遷移：backbone 凍結、只學輕量 adapter + 分類頭。
         if hasattr(args, 'freeze_backbone') and args.freeze_backbone:
             print("======== Freezing Backbone (Conv1-6, FC1-2) ========")
             for name, param in self.model.named_parameters():
@@ -232,6 +237,7 @@ class Trainer(object):
             }, full_path)
 
     def train_model(self):
+        # 主訓練迴圈：每個 epoch 跑完訓練 → eval → 若刷新最佳則存 best.tar。回傳最佳驗證準確率。
         if self.args.random_seed is not None:
             set_global_seed(self.args.random_seed)
 
@@ -240,11 +246,12 @@ class Trainer(object):
             self.criterion.train()
             epoch_meters = TrainingEpochMeters()
             start_data_loading = time.time()
-            
+
             for i, data in enumerate(self.train_loader):
                 (input, target) = data
                 input, target = input.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
-                
+
+                # SqrHinge loss 需要 ±1 的 one-hot 目標（BNN 慣用），故把 label 轉成 one-hot(-1/+1)。
                 is_sqr_hinge = isinstance(self.criterion, SqrHingeLoss)
                 if isinstance(self.criterion, DistillationLoss):
                     is_sqr_hinge = isinstance(self.criterion.base_criterion, SqrHingeLoss)
@@ -271,10 +278,13 @@ class Trainer(object):
                 else:
                     loss = self.criterion(output, target_var)
                 
+                # 標準 backward：清梯度 → 反傳 → 更新。adapter 模式下被凍結的參數
+                # requires_grad=False，optimizer 不會更新它們（只動 adapter + 分類頭）。
                 self.optimizer.zero_grad()
                 loss.backward()
                 self.optimizer.step()
-                
+
+                # BNN 權重夾在 [-1,1]（latent weight clipping，二值量化的標準做法）。
                 if hasattr(self.model, 'clip_weights'):
                     self.model.clip_weights(-1, 1)
 
@@ -289,11 +299,13 @@ class Trainer(object):
                 start_data_loading = time.time()
 
             if self.scheduler:
-                self.scheduler.step(epoch)
-            
+                self.scheduler.step(epoch)   # 學習率排程（STEP/FIXED，依 --milestones）
+
+            # 每個 epoch 結束在測試集評估一次，追蹤最佳準確率。
             with torch.no_grad():
                 top1avg = self.eval_model(epoch)
 
+            # 刷新最佳 → 記錄並（下方）存 best.tar；best_val_acc 即最終回報的 Final Best Accuracy。
             if top1avg >= self.best_val_acc and not self.args.dry_run:
                 self.best_val_acc = top1avg
                 self.checkpoint_best(epoch, "best.tar")
