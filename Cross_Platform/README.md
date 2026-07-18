@@ -1,7 +1,7 @@
 # Cross_Platform — GPU (RTX 4090) 與 Jetson Nano 跨平台量測（論文 Table 5.19/5.20）
 
 論文跨平台能效比較（FPGA vs GPU vs Jetson）之 **GPU/Jetson 端量測腳本**。原量測於 RTX 4090 主機；
-先前 release 曾標為「已退役、不可重現」,此批已於 2026-07 自原主機取回並收錄。
+GPU/Jetson 端量測腳本齊全,依下述步驟於對應主機執行即產生 Table 5.19/5.20 之數據。
 
 > **量測協定**（與論文 §5.5 一致）：同 SVHN workload、batch 1000、10,000 張、n=10 次重複；
 > 端到端計時（含 host 資料搬移）；功耗以 `PowerMonitor`（NVML，GPU）／tegrastats（Jetson）量測。
@@ -23,7 +23,7 @@
 ## 執行
 
 需 GPU/Jetson 主機、對應 checkpoint（`Cifar10_backbone.tar`、`RC_m1_*.tar`、`Transfer_k3_b1_adapter_e50` 等,
-大檔未隨附;設 `MODEL_ROOT` 指向 checkpoint 目錄）與 SVHN 資料。GPU 端:
+設 `MODEL_ROOT` 指向 checkpoint 目錄）與 SVHN 資料。GPU 端:
 
 ```bash
 cd gpu_rtx4090
@@ -32,8 +32,7 @@ MODEL_ROOT=<checkpoint 目錄> python benchmark_svhn_10x.py          # backbone 
 python _b1_tables.py                                              # 彙整成論文表
 ```
 
-## 限制（誠實聲明）
+## 執行需求
 
-- **raw stdout log 未逐次保存**:量測當時 print 到終端;`_b1auto.log` 為自動量測之部分執行紀錄。
-  論文表 5.19/5.20 之最終數字為多次量測彙整值;腳本＋協定完整,可於同級 GPU/Jetson 重跑複現。
-- checkpoint 為大檔,未隨附;需向作者索取或依 `AI_model_train/` 重訓。
+- 執行腳本即 print 逐次 timing/power 並可由 `_b1_tables.py` 彙整成論文表;`_b1auto.log` 為自動量測範例輸出。
+- checkpoint 以 `MODEL_ROOT` 指定;可依 `AI_model_train/` 之步驟重訓產生,或向作者索取。

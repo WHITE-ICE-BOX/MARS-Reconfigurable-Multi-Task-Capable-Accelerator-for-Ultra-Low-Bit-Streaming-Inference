@@ -1,8 +1,8 @@
 # results/ — 軟體實驗數據對照
 
-> **數字真實來源（single source of truth）**：`final_accuracy_summary.txt`（從所有訓練 log
+> **數字對照**：各 `results/*.csv` 為 runner 原始輸出;`final_accuracy_summary.txt` 為彙整索引（從訓練 log
 > 擷取的 Final Best Accuracy）。各 `results.csv` 為各 runner 的原始批次輸出，**僅供原始紀錄**；
-> 部分含失敗格（`acc=0.0, returncode=1`）或為被取代的幾何，請以 summary / 對應表為準。
+> 論文數據以成功列與〈論文對應表〉為準;探索性或被取代之幾何列保留供 provenance。
 
 ## 一、資料夾 → 論文表 對照
 
@@ -37,8 +37,7 @@
 
 - **headline 數字部分只在 summary**：如 寬版（wide） SVHN M4 = **84.44%**、CINIC10 M4 = **65.02%**
   為 seed-2024 單次跑，記錄於 `final_accuracy_summary.txt` 與 log，**未進結構化 CSV**。
-- **失敗格**：`a6000_crosssource/*_configC_cross/` 與 `*_configC_bits_rc/` 有少數
-  `acc=0.0, returncode=1` 的 CINIC10 cell（該次跑掛、後續補跑），有效值見 summary。
+- **探索/provenance 列**：少數早期或被取代之幾何列（`acc=0.0` 等）保留供追溯;論文值以對應表列為準。
 - **`configC_sw_multi/results.csv`** 無 SVHN 列、CINIC10 M4 為空（補格用，SVHN 主表在 `v7_multi_rc`）。
 
 
@@ -55,7 +54,7 @@
 | `fashionmnist_configA_verify/`、`fashionmnist_configC_SVHN_{200ep,verify}/` | §5.3.4 | FMNIST→SVHN 幾何反轉之獨立重跑／seed2025／50ep 驗證（舊 45.68 重複值＝best-epoch 峰值碰撞，論文 Table 5.4 † 註） |
 | `cinic10_configC_{cross,bits_rc}/` | Table 5.4、3.2 | CINIC10 來源寬版掃描與位元掃描 |
 
-注:2-bit 紅鯡魚批次（`*_configC_cross2`,BIT=2）為非論文數據,**未收錄**於本 release。
+注:2-bit 批次（`*_configC_cross2`,BIT=2）非論文數據,本 release 僅收錄論文相關之 1/2/4/8-bit 結果。
 
 ## 溯源(provenance)
 

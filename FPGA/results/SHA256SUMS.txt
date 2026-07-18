@@ -1,5 +1,5 @@
 # FPGA build reports — SHA-256 manifest
-# MARS_throughput_2ds routed report 為建置產物,重跑產生(見 REPORT_NOTE.md)
+# MARS_throughput_2ds 之 routed report 為建置產物,依 README §九.4 重跑產生(見 REPORT_NOTE.md)
 baef3f9300ca1e8bc9bdd1c72cd61714c0653ad5592a21e76849ac634603f28f  ./backbone_compact_pe1/top_wrapper_power_routed.rpt
 f9b3ff5c54ccfe93878e4453687badf080fe659ee48edede80710b7c2ac9a843  ./backbone_compact_pe1/top_wrapper_timing_summary_routed.rpt
 2aae837dfbeae4cc78fef6ba36ae71f4e051ede6deb7be51ec5b9ca32207e9af  ./backbone_compact_pe1/top_wrapper_utilization_placed.rpt
