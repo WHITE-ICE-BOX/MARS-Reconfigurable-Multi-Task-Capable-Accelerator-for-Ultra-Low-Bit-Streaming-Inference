@@ -16,6 +16,18 @@
 | [`06_資料集/`](06_資料集/) | 五個公開資料集之來源、版本與取得說明 |
 | [`07_碩士口試/`](07_碩士口試/) | 口試簡報 pptx |
 
+
+## 如何編譯論文（tex → PDF）
+
+| 文件 | 引擎 | 指令（各執行兩次） | 依賴 |
+|---|---|---|---|
+| 碩士論文 `01_論文全文/` | **XeLaTeX** | `xelatex MARS_碩士論文.tex` | Times New Roman + AR PL UKai TW 字型（見該夾 README） |
+| 期刊論文 `03_期刊論文/` | pdfLaTeX | `pdflatex MARS_期刊論文.tex` | IEEEtran.cls（已隨附） |
+| 會議論文 `04_會議論文/` | pdfLaTeX | `pdflatex MARS_會議論文.tex` | IEEEtran.cls（已隨附） |
+
+各資料夾 README 有完整步驟（含字型安裝指令）。所有原始檔均已齊備:LaTeX 原始碼、圖檔、
+python 繪圖腳本、程式碼、各說明 README、期刊/會議論文原始碼與 PDF。
+
 ## 快速指引
 
 - **看論文**:`01_論文全文/*.pdf`
