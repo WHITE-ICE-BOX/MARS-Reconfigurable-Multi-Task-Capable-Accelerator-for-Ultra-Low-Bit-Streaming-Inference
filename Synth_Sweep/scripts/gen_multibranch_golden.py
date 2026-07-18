@@ -15,10 +15,10 @@ memblock.dat each style's wstrm streams in simulation.
 import os
 import random
 
-ROOT = "/home/barkie1/mvau_multibranch_synth"
+ROOT = "mvau_multibranch_synth"
 MEMBLOCK = {
-    "compact": "/home/barkie1/mvau_pipeline_runtime_3ds_pe1/mvau_adapter/mvau{n}/data/memblock.dat",
-    "tp":      "/home/barkie1/mvau_pipeline_runtime/mvau_adapter/mvau{n}/data/memblock.dat",
+    "compact": "mvau_pipeline_runtime_3ds_pe1/mvau_adapter/mvau{n}/data/memblock.dat",
+    "tp":      "mvau_pipeline_runtime/mvau_adapter/mvau{n}/data/memblock.dat",
 }
 SITE = {
     1: dict(IN_CH=64,  OUT_CH=64,  HIDDEN=16, UPW=32, K=576,  pol=False),

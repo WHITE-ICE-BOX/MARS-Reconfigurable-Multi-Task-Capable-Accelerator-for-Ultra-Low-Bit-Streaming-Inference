@@ -99,6 +99,6 @@ for s in ("top", "right"):
     bx.spines[s].set_visible(False)
 
 fig.tight_layout(w_pad=2.0)
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig_tradeoff.pdf")
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig_tradeoff.png")
+fig.savefig("mvau_multibranch_synth/fig_tradeoff.pdf")
+fig.savefig("mvau_multibranch_synth/fig_tradeoff.png")
 print("saved fig_tradeoff.{pdf,png}")

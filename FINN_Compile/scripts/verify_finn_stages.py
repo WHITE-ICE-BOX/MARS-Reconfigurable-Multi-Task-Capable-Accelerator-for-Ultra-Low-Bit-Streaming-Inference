@@ -10,8 +10,8 @@ from qonnx.core.modelwrapper import ModelWrapper
 from qonnx.core.datatype import DataType
 from finn.core.onnx_exec import execute_onnx
 
-H = "/home/barkie1/thesis/finn/notebooks/end2end_example/bnn-pynq"
-B = "/home/barkie1/thesis/finn/finn_cifar10"
+H = "thesis/finn/notebooks/end2end_example/bnn-pynq"
+B = "thesis/finn/finn_cifar10"
 X = np.load(f"{H}/cifar10_test_x.npy")  # uint8 NHWC (N,32,32,3)
 Y = np.load(f"{H}/cifar10_test_y.npy")
 N = 300

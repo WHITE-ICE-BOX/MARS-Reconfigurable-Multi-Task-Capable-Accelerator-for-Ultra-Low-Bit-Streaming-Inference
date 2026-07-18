@@ -12,16 +12,16 @@ import os
 import glob
 import stat
 
-ROOT = "/home/barkie1/mvau_multibranch_synth"
+ROOT = "mvau_multibranch_synth"
 FIXED_DIR = {
-    "compact": "/home/barkie1/mvau_pipeline_runtime_3ds_pe1/mvau_adapter/mvau{n}/mvau{n}_fixed",
-    "tp":      "/home/barkie1/mvau_pipeline_runtime/mvau_adapter/mvau{n}/mvau{n}_fixed",
+    "compact": "mvau_pipeline_runtime_3ds_pe1/mvau_adapter/mvau{n}/mvau{n}_fixed",
+    "tp":      "mvau_pipeline_runtime/mvau_adapter/mvau{n}/mvau{n}_fixed",
 }
 IPSRC_DIR = {
     "compact": ROOT + "/compact3ds/m1/mvau_adapter_ip/mvau{n}/ip/src",
     "tp":      ROOT + "/tp2ds/m1/mvau_adapter_ip/mvau{n}/ip/src",
 }
-GLBL = "/home/barkie1/mvau_pipeline_runtime_3ds_pe1/mvau_adapter/mvau1/xsim_linux/glbl.v"
+GLBL = "mvau_pipeline_runtime_3ds_pe1/mvau_adapter/mvau1/xsim_linux/glbl.v"
 
 SITE = {
     1: dict(IN_CH=64,  OUT_CH=64,  HIDDEN=16, UPW=32, K=576),

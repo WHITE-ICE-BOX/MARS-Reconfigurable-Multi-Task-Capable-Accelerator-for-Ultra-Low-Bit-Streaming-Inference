@@ -16,7 +16,7 @@ the existing FINN block design without BD edits.
 """
 import os
 
-ROOT = "/home/barkie1/mvau_multibranch_synth"
+ROOT = "mvau_multibranch_synth"
 
 SITE = {
     1: dict(IN_CH=64,  OUT_CH=64,  HIDDEN=16, UPW=32, K=576,  pol=False),

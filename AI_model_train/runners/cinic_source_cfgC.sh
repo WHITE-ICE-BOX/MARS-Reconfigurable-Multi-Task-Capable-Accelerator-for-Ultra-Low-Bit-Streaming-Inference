@@ -1,10 +1,10 @@
 #!/bin/bash
 set -u
-source /home/esl/anaconda3/etc/profile.d/conda.sh
+# source <conda.sh>  # 依你的 conda 安裝路徑
 conda activate claude_repro
-cd /mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude/..
+cd ${MARS_TRAIN_ROOT}/..
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-LOG=/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude/cinic_source_cfgC.log
+LOG=${MARS_TRAIN_ROOT}/cinic_source_cfgC.log
 PP=4
 echo "######## CINIC10-source ConfigC START $(date) (cross M1-4 + bits 1,2,4; targets CIFAR10 SVHN STL10 FashionMNIST; gpu1) ########" >> "$LOG"
 python claude/run_configC_cross_nf.py --source CINIC10 --targets CIFAR10 SVHN STL10 FashionMNIST --rc_only --parallel $PP --gpu 1 >> "$LOG" 2>&1 &

@@ -9,7 +9,7 @@
 """
 Multi-bitwidth training driver for the bitwidth-vs-adapter experiment.
 
-Mirrors the logic of /home/esl/barkie/bnn_pynq/bnn_pynq/bnn_pynq_train.py but:
+Mirrors the logic of the original bnn_pynq_train.py but:
 - Uses claude/models_bitwidth/ (parametrizable CNV with QuantReLU for >=2-bit acts).
 - Uses claude/cfg_bitwidth/ configs (cnv_{N}w{N}a.ini for N in 1,2,4,8,16,32).
 - Does NOT modify any original-project file.

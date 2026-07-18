@@ -80,5 +80,5 @@ for row, (bname, bd) in enumerate(BUILDS.items()):
         bx.spines[sp].set_visible(False)
 
 fig.tight_layout(w_pad=2.0, h_pad=2.4)
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig_2builds.png")
+fig.savefig("mvau_multibranch_synth/fig_2builds.png")
 print("saved")

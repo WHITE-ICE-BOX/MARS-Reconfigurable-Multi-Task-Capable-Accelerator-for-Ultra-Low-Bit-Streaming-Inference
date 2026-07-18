@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 source /mnt/ssd/Xilinx/Vivado/2022.2/settings64.sh
-ROOT=/home/barkie1/mvau_multibranch_synth
+ROOT=${MARS_ROOT}/mvau_multibranch_synth
 for b in compact3ds tp2ds; do
     d=$ROOT/$b/m1
     echo "==== [$(date)] OPT START $b/m1 ===="

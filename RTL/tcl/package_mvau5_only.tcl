@@ -1,3 +1,4 @@
+# 使用前設定: set MARS_RTL_ROOT <本 repo 之 RTL 工作目錄>; set MARS_ROOT <repo 根>
 # ===========================================================================
 # [交接導向註解]
 # 腳本：打包 MVAU5 的 Adapter IP。流程：RTL。
@@ -6,8 +7,8 @@
 #-----------------------------------------------------------
 # Targeted re-package for MVAU5 only (with DONT_TOUCH fix).
 #-----------------------------------------------------------
-set ROOT      /home/barkie1/mvau_pipeline/mvau_adapter
-set IP_ROOT   /home/barkie1/mvau_pipeline/mvau_adapter_ip
+set ROOT      ${MARS_RTL_ROOT}/mvau_adapter
+set IP_ROOT   ${MARS_RTL_ROOT}/mvau_adapter_ip
 set PART      xc7z020clg400-1
 set n 5
 

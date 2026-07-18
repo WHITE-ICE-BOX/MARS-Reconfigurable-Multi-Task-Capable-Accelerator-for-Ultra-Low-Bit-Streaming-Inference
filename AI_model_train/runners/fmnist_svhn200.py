@@ -1,11 +1,12 @@
+import sys
 #!/usr/bin/env python3
 """FMNIST-source 1-bit configC SVHN column M1-4 @ 200ep (publishable) to replace the
 buggy Table 5.5 SVHN row (old M3=M4 duplicate). Same geometry as run_configC_cross.build_adapter."""
 import os, subprocess, threading, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-R="/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude"
+R=os.environ.get("MARS_TRAIN_ROOT", ".")
 PROJ=os.path.abspath(os.path.join(R,'..'))
-PYEXE="/home/esl/anaconda3/envs/claude_repro/bin/python"
+PYEXE=sys.executable
 TRAIN=os.path.join(R,"bnn_pynq_train_bitwidth.py")
 BB=os.path.join(R,"pretrained_backbones","fashionmnist_1w1a.tar")
 OUT=os.path.join(R,"paper_results_bitwidth","fashionmnist_configC_SVHN_200ep")

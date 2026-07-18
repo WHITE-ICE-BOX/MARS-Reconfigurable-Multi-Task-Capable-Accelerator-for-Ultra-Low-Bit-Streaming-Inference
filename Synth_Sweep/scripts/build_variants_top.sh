@@ -11,8 +11,8 @@
 #      stitch IP swapped in, OOC synth, linked post-synth reports (+opt).
 set -u
 source /mnt/ssd/Xilinx/Vivado/2022.2/settings64.sh
-export FINN_ROOT=/home/barkie1/thesis/finn
-ROOT=/home/barkie1/mvau_multibranch_synth
+export FINN_ROOT=${MARS_ROOT}/thesis/finn
+ROOT=${MARS_ROOT}/mvau_multibranch_synth
 
 ensure_variant () {
     local style=$1 rtlstyle=$2 M=$3 name=$4

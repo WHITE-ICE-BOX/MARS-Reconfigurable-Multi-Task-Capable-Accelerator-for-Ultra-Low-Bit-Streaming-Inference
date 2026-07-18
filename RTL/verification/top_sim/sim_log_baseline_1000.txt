@@ -1,0 +1,61 @@
+
+****** xsim v2022.2 (64-bit)
+  **** SW Build 3671981 on Fri Oct 14 04:59:54 MDT 2022
+  **** IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+
+source xsim.dir/tb_top_baseline_behav/xsim_script.tcl
+# xsim {tb_top_baseline_behav} -autoloadwcfg -tclbatch {run_step_1000.tcl}
+Time resolution is 1 ps
+source run_step_1000.tcl
+## puts "TCL: starting 1000-image run"
+TCL: starting 1000-image run
+## run 10 ms
+[0] loaded 1000 images (3072000 bytes), 1000 labels
+[245000] reset deasserted, starting stream
+run: Time (s): cpu = 00:00:00.08 ; elapsed = 00:11:30 . Memory (MB): peak = 1247.164 ; gain = 0.000 ; free physical = 16895 ; free virtual = 25076
+## puts "TCL: at 10ms"
+TCL: at 10ms
+## run 100 ms
+[25858095000]   collected 50 / 1000 predictions
+[50856595000]   collected 100 / 1000 predictions
+[75855095000]   collected 150 / 1000 predictions
+[100853595000]   collected 200 / 1000 predictions
+run: Time (s): cpu = 00:00:00.75 ; elapsed = 01:47:05 . Memory (MB): peak = 1255.168 ; gain = 8.004 ; free physical = 16267 ; free virtual = 24939
+## puts "TCL: at 110ms"
+TCL: at 110ms
+## run all
+[125852095000]   collected 250 / 1000 predictions
+[150850595000]   collected 300 / 1000 predictions
+[175849095000]   collected 350 / 1000 predictions
+[200847595000]   collected 400 / 1000 predictions
+[225846095000]   collected 450 / 1000 predictions
+[250844595000]   collected 500 / 1000 predictions
+[275843095000]   collected 550 / 1000 predictions
+[300841595000]   collected 600 / 1000 predictions
+[325840095000]   collected 650 / 1000 predictions
+[350838595000]   collected 700 / 1000 predictions
+[375837095000]   collected 750 / 1000 predictions
+[400835595000]   collected 800 / 1000 predictions
+[425834095000]   collected 850 / 1000 predictions
+[450832595000]   collected 900 / 1000 predictions
+[475831095000]   collected 950 / 1000 predictions
+[500829595000]   collected 1000 / 1000 predictions
+[500829605000] all 1000 predictions collected (50082961 cycles)
+
+========================================
+     TOP-LEVEL RTL ACCURACY REPORT     
+========================================
+ DUT           : StreamingDataflowPartition_1 (baseline)
+ Images        : 1000
+ Correct       : 115
+ Wrong         : 885
+ Accuracy      : 115 / 1000 = 11.5000 %
+========================================
+$finish called at time : 500829605 ns : File "/home/barkie1/mvau_pipeline/mvau_adapter/golden/tb_top_baseline.sv" Line 160
+run: Time (s): cpu = 00:00:03 ; elapsed = 06:57:15 . Memory (MB): peak = 1255.168 ; gain = 0.000 ; free physical = 16109 ; free virtual = 24810
+## puts "TCL: run all returned"
+TCL: run all returned
+## quit
+INFO: xsimkernel Simulation Memory Usage: 130788 KB (Peak: 184032 KB), Simulation CPU Usage: 32148320 ms
+INFO: [Common 17-206] Exiting xsim at Wed Apr 15 13:56:09 2026...

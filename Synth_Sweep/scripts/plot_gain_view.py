@@ -61,7 +61,7 @@ ax.legend(frameon=False, fontsize=8.5, loc="upper left")
 for sp in ("top", "right"):
     ax.spines[sp].set_visible(False)
 fig.tight_layout()
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig16/gain_view.png")
+fig.savefig("mvau_multibranch_synth/fig16/gain_view.png")
 plt.close(fig)
 
 # ---------- Fig 2: raw per-step gain bars + cost labels ----------
@@ -87,6 +87,6 @@ ax.set_axisbelow(True)
 for sp in ("top", "right"):
     ax.spines[sp].set_visible(False)
 fig.tight_layout()
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig16/step_gain.png")
+fig.savefig("mvau_multibranch_synth/fig16/step_gain.png")
 plt.close(fig)
 print("saved gain_view + step_gain")

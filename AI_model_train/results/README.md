@@ -56,3 +56,9 @@
 | `cinic10_configC_{cross,bits_rc}/` | Table 5.4、3.2 | CINIC10 來源寬版掃描與位元掃描 |
 
 注:`*_configC_cross2` 為 2-bit 紅鯡魚批次（BIT=2），非論文數據，保留僅供稽核。
+
+## 溯源(provenance)
+
+- 所有 CSV 為 runner 直接輸出之原始值(未手改);對應 runner 之超參數(seed、epochs、lr、幾何旗標)寫死於 `runners/*.py` 內,即為該批數據之完整 configuration metadata。
+- 訓練皆 200 epochs、STEP(100,150)、lr 0.005、batch 100;headline 用 seed 2024,多 seed 批次為 2024–2028。
+- 本 release 對應之論文版本:碩士論文定稿(2026-07);程式碼與數據之對應以 git tag/commit 為準。

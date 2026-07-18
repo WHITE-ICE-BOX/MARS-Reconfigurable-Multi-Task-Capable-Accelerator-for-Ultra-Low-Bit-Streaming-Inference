@@ -11,7 +11,7 @@ to the threshs_ROM modules for MVAU_hls_0 (PE=1, 64x11-bit), MVAU_hls_6 (FC1,
 512x8-bit), and MVAU_hls_7 (FC2, 512x10-bit).
 
 For each IP at:
-  /home/barkie1/thesis/finn/finn_cifar10/code_gen_ipgen_<N>/project_<N>/sol1/impl/ip/
+  <FINN_BUILD_DIR>/code_gen_ipgen_<N>/project_<N>/sol1/impl/ip/
 
 Patches:
   1. hdl/verilog/<N>_Matrix_Vector_Activate_Stream_Batch_threshs_ROM_AUTO_1R.v
@@ -30,7 +30,7 @@ import os
 import re
 import shutil
 
-FINN_BASE = "/home/barkie1/thesis/finn/finn_cifar10"
+FINN_BASE = "thesis/finn/finn_cifar10"
 
 # Per-IP config
 IPS = {

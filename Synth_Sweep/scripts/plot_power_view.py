@@ -41,5 +41,5 @@ ax.legend(frameon=False, fontsize=9, loc="upper left")
 for sp in ("top", "right"):
     ax.spines[sp].set_visible(False)
 fig.tight_layout()
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig16/power_view.png")
+fig.savefig("mvau_multibranch_synth/fig16/power_view.png")
 print("saved power_view")

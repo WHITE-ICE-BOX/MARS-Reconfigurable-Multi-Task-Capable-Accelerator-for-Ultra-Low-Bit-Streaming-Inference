@@ -1,11 +1,12 @@
+import sys
 #!/usr/bin/env python3
 """Independent retrain of deployed (Config A) FMNIST-source cells for Table 5.17 verification.
 kernel1/signed/scalar/mid=in + RC (--adapter_bias), 1-bit, 200ep, seed 2024. 4 targets x M1-4 = 16 cells."""
 import os, subprocess, threading, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-R="/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude"
+R=os.environ.get("MARS_TRAIN_ROOT", ".")
 PROJ=os.path.abspath(os.path.join(R,'..'))
-PY="/home/esl/anaconda3/envs/claude_repro/bin/python"
+PY=sys.executable
 TRAIN=os.path.join(R,"bnn_pynq_train_bitwidth.py")
 BB=os.path.join(R,"pretrained_backbones","fashionmnist_1w1a.tar")
 OUT=os.path.join(R,"paper_results_bitwidth","fashionmnist_configA_verify")

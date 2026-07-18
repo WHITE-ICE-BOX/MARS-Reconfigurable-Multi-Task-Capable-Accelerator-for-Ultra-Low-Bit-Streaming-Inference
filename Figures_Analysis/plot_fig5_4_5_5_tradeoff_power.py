@@ -106,8 +106,8 @@ def draw(tag, axis):   # axis in {"lut", "power"}
     ax.grid(True, color=GRIDC, lw=0.6)
     ax.set_axisbelow(True)
     fig.tight_layout(rect=(0, 0.065, 1, 1))
-    fig.savefig(f"/home/barkie1/mvau_multibranch_synth/fig16/final_{tag}_lut.png")
-    fig.savefig(f"/home/barkie1/mvau_multibranch_synth/fig16/final_{tag}_lut.pdf")
+    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_lut.png")
+    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_lut.pdf")
     plt.close(fig)
 
 
@@ -144,8 +144,8 @@ def draw_power(tag):
     ax.grid(True, axis="y", color=GRIDC, lw=0.6)
     ax.set_axisbelow(True)
     fig.tight_layout()
-    fig.savefig(f"/home/barkie1/mvau_multibranch_synth/fig16/final_{tag}_power.png")
-    fig.savefig(f"/home/barkie1/mvau_multibranch_synth/fig16/final_{tag}_power.pdf")
+    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_power.png")
+    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_power.pdf")
     plt.close(fig)
 
 

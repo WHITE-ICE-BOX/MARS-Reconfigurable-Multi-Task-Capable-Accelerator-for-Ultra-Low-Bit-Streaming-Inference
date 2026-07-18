@@ -24,7 +24,7 @@ MVAUS = {
     3: (16, "mvau3/data/mvau3_alpha_q8.dat", "mvau3/data/mvau3_contrib_lut.dat"),
     4: (16, "mvau4/data/mvau4_alpha_q8.dat", "mvau4/data/mvau4_contrib_lut.dat"),
 }
-ROOT = "/home/barkie1/mvau_pipeline/mvau_adapter"
+ROOT = "mvau_pipeline/mvau_adapter"
 
 
 def read_alpha(path):

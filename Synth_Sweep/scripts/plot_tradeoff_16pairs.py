@@ -8,7 +8,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-OUT = "/home/barkie1/mvau_multibranch_synth/fig16"
+OUT = "mvau_multibranch_synth/fig16"
 import os
 os.makedirs(OUT, exist_ok=True)
 

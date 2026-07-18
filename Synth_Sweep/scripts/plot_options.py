@@ -6,7 +6,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-OUT = "/home/barkie1/mvau_multibranch_synth/fig_opts"
+OUT = "mvau_multibranch_synth/fig_opts"
 import os
 os.makedirs(OUT, exist_ok=True)
 

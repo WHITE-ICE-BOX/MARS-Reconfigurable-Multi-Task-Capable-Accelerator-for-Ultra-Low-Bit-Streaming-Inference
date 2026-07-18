@@ -131,6 +131,58 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 
 ---
 
+---
+
+## 九、重現指南（交接必讀）
+
+### 9.1 環境
+| 項目 | 版本 |
+|---|---|
+| OS | Ubuntu 20.04/22.04（訓練與合成皆於 Linux 驗證） |
+| Python | 3.8（訓練環境;`pip install -r requirements.txt`） |
+| PyTorch / Brevitas | 2.4.1 / 0.12.0 |
+| FINN | v0.9（官方 Docker;`bash run-docker.sh`） |
+| Vivado | 2022.2（所有資源/功耗/時序報告之工具版本） |
+| 板端 | PYNQ-Z2 原廠 image（Python + `pynq` overlay API） |
+
+路徑約定:訓練類腳本以環境變數 **`MARS_TRAIN_ROOT`** 指到訓練工作目錄（含 `paper_results_bitwidth/`、`pretrained_backbones/`）;Vivado `.tcl` 以 **`MARS_RTL_ROOT`／`MARS_ROOT`** 指到本 repo 對應資料夾。原始實驗跑在兩台 GPU 主機與本地 Vivado 機上,腳本內不再含任何機器特定絕對路徑。
+
+### 9.2 資料集與 checkpoint
+- CIFAR-10 / SVHN / STL10 / FashionMNIST 由 torchvision **自動下載**;CINIC10 由 `bnn_pynq_train_bitwidth.py` 內建下載程序取得（官方 train/test 各 90k,valid 未用）。
+- 預訓練 1W1A backbone（五個來源資料集各一）在 [`AI_model_train/backbones/`](AI_model_train/backbones/)（`*_1w1a.tar`）,可直接用;重訓指令見 `AI_model_train/README.md`。
+
+### 9.3 最小軟體實驗（單筆遷移,約 30 分鐘 GPU）
+```bash
+cd AI_model_train/src
+python bnn_pynq_train_bitwidth.py --mode adapter --net_bit 1 --dataset SVHN   --finetune_checkpoint ../backbones/cifar10_1w1a.tar   --epochs 200 --lr 0.005 --scheduler STEP --milestones 100,150 --batch_size 100   --random_seed 2024 --num_branches 1 --adapter_bit_width 1   --adapter_kernel 1 --adapter_act signed --adapter_alpha scalar   --adapter_mid_basis in --no_rc --adapter_bias
+```
+即部署幾何 M=1+RC 之 CIFAR-10→SVHN（對應 Table 5.18 第一列;best-epoch test 選點,論文已聲明此限制）。
+
+### 9.4 硬體重現路徑
+1. **adapter `.dat` / configuration blob**:`RTL/gen_scripts/prepack_adapter_dat.py`、`make_adp_contrib_luts.py`;五任務 blob 成品在 `FPGA/MARS_compact_5ds_pe1/runtime_weights/{cifar10,svhn,fashion,stl10,cinic10}/`,重生程序見 `FPGA/README.md`。
+2. **RTL 模擬**:`RTL/verification/mvau{1..5}_testbench/`（五模組合計 43,520 向量;golden 由 `export_testbench_data.py` 自硬體佈局權重映像產生）;頂層模擬資產於 `RTL/verification/top_sim/`（`run_sim_top_*.tcl`、輸入 hex、baseline sim log）。
+3. **Vivado 專案重建**:`RTL/tcl/make_project.tcl` → `package_ips.tcl` → `SoC/` block design → `RTL/tcl/build_bitstream.tcl`（OOC cache 注意事項見 `RTL/README.md`）。FINN 產生碼上的最小手動補丁由 `RTL/gen_scripts/patch_finn_ips.py` 自動施加（免 GUI）。
+4. **PYNQ-Z2 部署**:把 `FPGA/<build>/` 整夾放上板,依 `FPGA/README.md` 執行 `board_test_10k.py`（吞吐/精度）與 `board_switch_fast_bench.py`（切換延遲,50 次隨機切換統計）。
+
+### 9.5 論文表格重現
+見〈八、論文對應表〉:每張實驗表/資料驅動圖對應之 runner、輸出 CSV 與繪圖腳本。彙整層級（多 CSV → 論文表格數字）由 `Synth_Sweep/scripts/collect_tables.py` 與各 `results/README.md` 說明。
+
+---
+
+## 十、已知限制與證據邊界（與論文 §5.9 一致）
+
+- **M=2–4 未上板**:超出 XC7Z020 容量;僅 RTL 模擬（40/40 bit-exact）與合成後估計,未 place-and-route。`Synth_Sweep` 報告皆為 synthesis-stage/vectorless 估計。
+- **Checkpoint 以 test 集選點**（BNN-PYNQ 原流程）:絕對準確率為 best-epoch 操作點;last-epoch 無選擇交叉檢核見 `Figures_Analysis/parse_lastepoch_b2.py`。
+- **FPGA 功耗為 Vivado 估計**,GPU/Jetson 為執行時實測;跨平台比較之 adapter 幾何不同（FPGA=部署 1×1、GPU/Jetson=寬版 3×3）。
+- **GPU/Jetson 量測腳本**:原跑於已退役之 RTX 4090 主機,腳本未隨附;量測協定完整記錄於論文 §5.5。
+- **板上原始逐次量測 log**（50 次切換、10 次吞吐)僅保留統計摘要（`FPGA/results/onboard_measurements.md`）;量測腳本在 repo,可於板上重生。
+- **Vivado 報告存檔**（`Synth_Sweep/results_archive/`、`FPGA/results/`）保留原建置機路徑字串,屬工具輸出原樣存證。
+- 正式論文數據 vs 中間產物之區分見 `AI_model_train/results/README.md`（含 2-bit 紅鯡魚批次註記）。
+
+## 授權
+
+MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、PyTorch、FINN 產生之 RTL）保留其原始授權。
+
 ## 引用
 
 若使用本專案，請引用碩士論文：

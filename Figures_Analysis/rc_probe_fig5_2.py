@@ -1,5 +1,6 @@
+import os
 import sys, os, json, torch
-REPO='/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude'
+REPO=os.environ.get('MARS_TRAIN_ROOT', '.')
 sys.path.insert(0,REPO); os.chdir(REPO)
 sys.argv=['x','--mode','adapter','--net_bit','1','--dataset','SVHN',
  '--finetune_checkpoint',REPO+'/pretrained_backbones/cifar10_1w1a.tar',

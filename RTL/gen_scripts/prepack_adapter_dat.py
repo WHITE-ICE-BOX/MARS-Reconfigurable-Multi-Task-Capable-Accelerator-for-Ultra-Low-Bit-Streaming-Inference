@@ -18,7 +18,7 @@ Generates per MVAU:
 """
 import os
 
-BASE = "/home/barkie1/mvau_pipeline/mvau_adapter"
+BASE = "mvau_pipeline/mvau_adapter"
 
 # MVAU configurations: (N, PE, SIMD, IN_CH, OUT_CH, REDUCTION, data_dir, up_suffix)
 CONFIGS = [

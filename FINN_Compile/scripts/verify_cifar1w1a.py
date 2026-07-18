@@ -8,7 +8,7 @@
 import torch, numpy as np
 from brevitas_examples.bnn_pynq.models.CNV import CNV
 
-_HERE = "/home/barkie1/thesis/finn/notebooks/end2end_example/bnn-pynq"
+_HERE = "thesis/finn/notebooks/end2end_example/bnn-pynq"
 X = np.load(f"{_HERE}/cifar10_test_x.npy")  # uint8 NHWC
 Y = np.load(f"{_HERE}/cifar10_test_y.npy")
 print("X", X.shape, X.dtype, "min/max", X.min(), X.max())

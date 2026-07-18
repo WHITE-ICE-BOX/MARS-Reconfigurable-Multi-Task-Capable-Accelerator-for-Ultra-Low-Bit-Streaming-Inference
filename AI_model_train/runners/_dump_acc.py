@@ -1,3 +1,4 @@
+import os
 # ===========================================================================
 # [交接導向註解]
 # runner：工具：從訓練 log 擷取 Final Best Accuracy。
@@ -6,7 +7,7 @@
 
 import torch,glob,os
 groups=["svhn_to_others_bits","svhn_to_others","stl10_to_others","cinic10_to_others_bits","fashionmnist_to_others_bits"]
-ROOT="/home/esl/barkie/bnn_pynq/bnn_pynq/claude/paper_results_bitwidth"
+ROOT=os.environ.get("MARS_TRAIN_ROOT",".")+"/paper_results_bitwidth"
 for grp in groups:
     base=os.path.join(ROOT,grp,"experiments")
     if not os.path.isdir(base):

@@ -25,12 +25,12 @@ cfg_hub byte address = (unit << 13) + (word_addr << 2)
   word 1664..1664+255: contrib_lut
 """
 import os, sys, struct, json
-sys.path.insert(0, "/home/barkie1/finn_brevitis/brevitas/src")
+sys.path.insert(0, "finn_brevitis/brevitas/src")
 import warnings; warnings.filterwarnings('ignore')
 import torch
 import numpy as np
 
-ROOT = "/home/barkie1/mvau_pipeline_runtime_3ds_pe1"
+ROOT = "mvau_pipeline_runtime_3ds_pe1"
 CKPT_DIR = f"{ROOT}/sw/checkpoints"
 OUT_DIR = f"{ROOT}/sw/runtime_weights"
 

@@ -9,7 +9,7 @@ Take v1's already-streamlined dataflow_model.onnx (PE=32 baseline) and refold to
 Skip the broken Streamline step entirely.
 """
 import os, shutil
-os.environ["FINN_BUILD_DIR"] = "/home/barkie1/mvau_pipeline_runtime_3ds_pe1/finn_build_v1refold"
+os.environ["FINN_BUILD_DIR"] = "mvau_pipeline_runtime_3ds_pe1/finn_build_v1refold"
 os.makedirs(os.environ["FINN_BUILD_DIR"], exist_ok=True)
 build_dir = os.environ["FINN_BUILD_DIR"]
 
@@ -18,7 +18,7 @@ from qonnx.custom_op.registry import getCustomOp
 from qonnx.transformation.general import GiveUniqueNodeNames
 
 # Reuse v1's verified post-streamline model
-src = "/home/barkie1/mvau_pipeline_runtime/finn/finn_pipeline_adapter/cnv_6layer_fc3_svhn_w1a1_dataflow_model.onnx"
+src = "mvau_pipeline_runtime/finn/finn_pipeline_adapter/cnv_6layer_fc3_svhn_w1a1_dataflow_model.onnx"
 dst_folded = build_dir + "/cnv_6layer_fc3_pe1_folded.onnx"
 
 model = ModelWrapper(src)

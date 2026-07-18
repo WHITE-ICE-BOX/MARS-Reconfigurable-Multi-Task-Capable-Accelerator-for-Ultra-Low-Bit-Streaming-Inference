@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """Controlled FMNIST-source 1-bit configC (accuracy-best) retrain for Table 5.5.
 Exactly reproduces run_configC_cross.build_adapter (BIT=1, kernel3/relu/per-ch/mid=out, RC=--adapter_bias),
@@ -7,9 +8,9 @@ but with fresh experiment dirs so nothing is skipped, one job per cell (no full_
 import os, sys, subprocess, threading, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-R = "/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude"
+R = os.environ.get("MARS_TRAIN_ROOT", ".")
 PROJ = os.path.abspath(os.path.join(R, '..'))
-PY = "/home/esl/anaconda3/envs/claude_repro/bin/python"
+PY = sys.executable
 TRAIN = os.path.join(R, "bnn_pynq_train_bitwidth.py")
 BB = os.path.join(R, "pretrained_backbones", "fashionmnist_1w1a.tar")
 OUT = os.path.join(R, "paper_results_bitwidth", "fashionmnist_configC_cross_v2")

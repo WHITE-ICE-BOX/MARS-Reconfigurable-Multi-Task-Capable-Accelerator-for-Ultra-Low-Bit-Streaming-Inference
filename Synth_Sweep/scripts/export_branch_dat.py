@@ -25,7 +25,7 @@ import os
 import numpy as np
 import torch
 
-ROOT = "/home/barkie1/mvau_multibranch_synth"
+ROOT = "mvau_multibranch_synth"
 CKPTS = {
     1: f"{ROOT}/sw/checkpoints/SVHN_v1v2_M1_rc_best.tar",
     2: f"{ROOT}/sw/checkpoints/SVHN_v1v2_M2_rc_best.tar",

@@ -1,3 +1,4 @@
+# 使用前設定: set MARS_RTL_ROOT <本 repo 之 RTL 工作目錄>; set MARS_ROOT <repo 根>
 # ===========================================================================
 # [交接導向註解]
 # 腳本：打包 MVAU1–4 的 Adapter IP。流程：RTL。
@@ -6,14 +7,14 @@
 #-----------------------------------------------------------
 # Re-package MVAU1~MVAU4 Super_Wrapper as IPs.
 # (MVAU5 unchanged, skip it)
-# Output: /home/barkie1/mvau_pipeline/mvau_adapter_ip/mvauN/
+# Output: ${MARS_RTL_ROOT}/mvau_adapter_ip/mvauN/
 #
 # This script also copies all .dat data files (weights,
 # thresholds, adapter LUTs, sign ROMs, etc.) into the IP
 # so that synthesis can find them via $readmemh.
 #-----------------------------------------------------------
-set ROOT      /home/barkie1/mvau_pipeline/mvau_adapter
-set IP_ROOT   /home/barkie1/mvau_pipeline/mvau_adapter_ip
+set ROOT      ${MARS_RTL_ROOT}/mvau_adapter
+set IP_ROOT   ${MARS_RTL_ROOT}/mvau_adapter_ip
 set PART      xc7z020clg400-1
 
 proc get_sources {n} {

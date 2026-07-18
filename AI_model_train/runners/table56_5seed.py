@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """Table 5.6 (tab:multiseed) as a genuine 5-seed, same-host (A6000) experiment.
 Two configs x 5 seeds on CIFAR-10->SVHN 1W1A:
@@ -6,9 +7,9 @@ Two configs x 5 seeds on CIFAR-10->SVHN 1W1A:
 """
 import os, subprocess, threading, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-R="/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude"
+R=os.environ.get("MARS_TRAIN_ROOT", ".")
 PROJ=os.path.abspath(os.path.join(R,'..'))
-PYEXE="/home/esl/anaconda3/envs/claude_repro/bin/python"
+PYEXE=sys.executable
 TRAIN=os.path.join(R,"bnn_pynq_train_bitwidth.py")
 BB=os.path.join(R,"pretrained_backbones","cifar10_1w1a.tar")
 OUT=os.path.join(R,"paper_results_bitwidth","table56_5seed")

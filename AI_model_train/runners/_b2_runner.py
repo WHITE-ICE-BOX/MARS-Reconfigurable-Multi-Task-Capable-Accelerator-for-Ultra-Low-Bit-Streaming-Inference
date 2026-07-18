@@ -1,3 +1,4 @@
+import sys
 # ===========================================================================
 # [交接導向註解]
 # runner：n=5 paired t-test 顯著性（deployed 幾何，SVHN/Fashion × M1/M4）。
@@ -5,7 +6,7 @@
 # ===========================================================================
 
 import os, subprocess, re, csv, time, sys
-THIS="/home/esl/barkie/bnn_pynq/bnn_pynq/claude"
+THIS=os.environ.get("MARS_TRAIN_ROOT",".")
 TRAIN=THIS+"/bnn_pynq_train_bitwidth.py"
 BP=THIS+"/pretrained_backbones/cifar10_1w1a.tar"
 EXP=THIS+"/paper_results_bitwidth/b2_significance/experiments"

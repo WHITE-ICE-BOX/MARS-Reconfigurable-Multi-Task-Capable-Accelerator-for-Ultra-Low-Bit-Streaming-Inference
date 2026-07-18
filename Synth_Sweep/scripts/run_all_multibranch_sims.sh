@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run all 30 multi-branch sims sequentially, collect RESULT lines.
-ROOT=/home/barkie1/mvau_multibranch_synth
+ROOT=${MARS_ROOT}/mvau_multibranch_synth
 OUT=$ROOT/sim/results_summary.txt
 : > $OUT
 for style in compact tp; do

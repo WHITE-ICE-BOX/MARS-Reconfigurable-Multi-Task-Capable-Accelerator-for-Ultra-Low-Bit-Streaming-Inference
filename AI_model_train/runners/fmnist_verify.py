@@ -1,12 +1,13 @@
+import sys
 #!/usr/bin/env python3
 """Verification run: FMNIST-source 1-bit configC SVHN M1-4, 50 epochs, to check if the
 old SVHN column (M3=M4=45.68223724646589 duplicate) is a real bug. Same geometry as
 run_configC_cross.build_adapter (kernel3/relu/per-ch/mid=out, RC=--adapter_bias)."""
 import os, subprocess, threading, re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-R="/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude"
+R=os.environ.get("MARS_TRAIN_ROOT", ".")
 PROJ=os.path.abspath(os.path.join(R,'..'))
-PY="/home/esl/anaconda3/envs/claude_repro/bin/python"
+PY=sys.executable
 TRAIN=os.path.join(R,"bnn_pynq_train_bitwidth.py")
 BB=os.path.join(R,"pretrained_backbones","fashionmnist_1w1a.tar")
 OUT=os.path.join(R,"paper_results_bitwidth","fashionmnist_configC_SVHN_verify")

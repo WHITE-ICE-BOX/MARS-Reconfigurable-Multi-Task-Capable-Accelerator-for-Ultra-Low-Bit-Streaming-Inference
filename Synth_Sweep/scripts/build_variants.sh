@@ -10,7 +10,7 @@
 # repackage the 5 adapter IPs, then global synth + opt + reports.
 set -u
 source /mnt/ssd/Xilinx/Vivado/2022.2/settings64.sh
-ROOT=/home/barkie1/mvau_multibranch_synth
+ROOT=${MARS_ROOT}/mvau_multibranch_synth
 
 build_one () {
     local style=$1 rtlstyle=$2 M=$3 name=$4

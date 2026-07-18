@@ -26,16 +26,16 @@ The golden generation:
 """
 import os, sys, math
 
-sys.path.insert(0, "/home/barkie1/finn_brevitis/brevitas/src")
-sys.path.insert(0, "/home/barkie1/mvau_pipeline/sw")
+sys.path.insert(0, "finn_brevitis/brevitas/src")
+sys.path.insert(0, "mvau_pipeline/sw")
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from models.CNV import cnv
 
-CKPT = "/home/barkie1/mvau_pipeline/sw/paper_results/stage1_models/RC_m1_full.tar"
-GOLDEN_ROOT = "/home/barkie1/mvau_pipeline/mvau_adapter"
+CKPT = "mvau_pipeline/sw/paper_results/stage1_models/RC_m1_full.tar"
+GOLDEN_ROOT = "mvau_pipeline/mvau_adapter"
 NUM_SAMPLES = 10
 
 # Layer config

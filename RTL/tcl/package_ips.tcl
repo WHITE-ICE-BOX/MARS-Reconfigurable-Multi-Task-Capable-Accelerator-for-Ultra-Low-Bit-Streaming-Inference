@@ -1,3 +1,4 @@
+# 使用前設定: set MARS_RTL_ROOT <本 repo 之 RTL 工作目錄>; set MARS_ROOT <repo 根>
 # ===========================================================================
 # [交接導向註解]
 # 腳本：把 5 個 MVAU+Adapter 打包成 Vivado IP。流程：RTL -> SoC 之間。
@@ -5,10 +6,10 @@
 
 #-----------------------------------------------------------
 # Package MVAU1~MVAU5 Super_Wrapper as IPs.
-# Output: /home/barkie1/mvau_pipeline/mvau_adapter_ip/mvauN/
+# Output: ${MARS_RTL_ROOT}/mvau_adapter_ip/mvauN/
 #-----------------------------------------------------------
-set ROOT      /home/barkie1/mvau_pipeline/mvau_adapter
-set IP_ROOT   /home/barkie1/mvau_pipeline/mvau_adapter_ip
+set ROOT      ${MARS_RTL_ROOT}/mvau_adapter
+set IP_ROOT   ${MARS_RTL_ROOT}/mvau_adapter_ip
 set PART      xc7z020clg400-1
 
 proc get_sources {n} {

@@ -105,6 +105,6 @@ for sp in ("top", "right"):
     bx.spines[sp].set_visible(False)
 
 fig.tight_layout(w_pad=2.0)
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig_tradeoff_v4.pdf")
-fig.savefig("/home/barkie1/mvau_multibranch_synth/fig_tradeoff_v4.png")
+fig.savefig("mvau_multibranch_synth/fig_tradeoff_v4.pdf")
+fig.savefig("mvau_multibranch_synth/fig_tradeoff_v4.png")
 print("saved v4")

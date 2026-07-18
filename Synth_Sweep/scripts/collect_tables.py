@@ -12,7 +12,7 @@ Outputs Markdown (tables.md) + LaTeX (tables.tex).
 import os
 import re
 
-ROOT = "/home/barkie1/mvau_multibranch_synth"
+ROOT = "mvau_multibranch_synth"
 DEV = dict(LUT=53200, FF=106400, BRAM=140, DSP=220, SLICE=13300)
 
 # Original published M=1 numbers (post-implementation, thesis Tables 5.11/5.12)

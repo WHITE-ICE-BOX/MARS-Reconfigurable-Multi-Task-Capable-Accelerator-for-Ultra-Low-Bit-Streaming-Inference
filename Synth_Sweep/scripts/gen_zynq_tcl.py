@@ -19,8 +19,8 @@ import sys
 VAR = sys.argv[1].rstrip("/")
 STYLE = sys.argv[2]
 
-FC = "/home/barkie1/thesis/finn/finn_cifar10"
-FPA = "/home/barkie1/mvau_pipeline_runtime/finn/finn_pipeline_adapter"
+FC = "thesis/finn/finn_cifar10"
+FPA = "mvau_pipeline_runtime/finn/finn_pipeline_adapter"
 DMA = {
     "compact": dict(
         idma=[f"{FC}/code_gen_ipgen_StreamingDataflowPartition_0_IODMA_hls_0_ro2p7i1_/project_StreamingDataflowPartition_0_IODMA_hls_0/sol1/impl/ip",

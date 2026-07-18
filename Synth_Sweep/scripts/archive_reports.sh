@@ -1,7 +1,7 @@
 #!/bin/bash
 # Snapshot each variant's reports_top into results_archive/<style>_<name>/
 # (never overwrite an existing archive unless -f given).
-ROOT=/home/barkie1/mvau_multibranch_synth
+ROOT=${MARS_ROOT}/mvau_multibranch_synth
 FORCE=${1:-}
 for d in $ROOT/compact3ds/m1 $ROOT/compact3ds/m1gen $ROOT/compact3ds/m2 $ROOT/compact3ds/m3 $ROOT/compact3ds/m4 \
          $ROOT/tp2ds/m1fix $ROOT/tp2ds/m2 $ROOT/tp2ds/m3 $ROOT/tp2ds/m4; do

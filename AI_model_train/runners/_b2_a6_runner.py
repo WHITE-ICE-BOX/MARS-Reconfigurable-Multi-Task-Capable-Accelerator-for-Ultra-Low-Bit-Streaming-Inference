@@ -1,5 +1,6 @@
+import sys
 import os, subprocess, re, time, sys
-THIS="/mnt/8tb_hdd/barkie1_hdd/barkie_paper/paper/finn_brevitis/brevitas/src/brevitas_examples/bnn_pynq/claude/repro/claude"
+THIS=os.environ.get("MARS_TRAIN_ROOT", ".")
 TRAIN=THIS+"/bnn_pynq_train_bitwidth.py"
 BP=THIS+"/pretrained_backbones/cifar10_1w1a.tar"
 EXP=THIS+"/paper_results_bitwidth/b2_significance/experiments"

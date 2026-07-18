@@ -1,3 +1,4 @@
+# 使用前設定: set MARS_RTL_ROOT <本 repo 之 RTL 工作目錄>; set MARS_ROOT <repo 根>
 # ===========================================================================
 # [交接導向註解]
 # 腳本：完整建置流程（stitch -> zynq -> bitstream）。流程：SoC，產出 FPGA/*.bit。
@@ -9,9 +10,9 @@
 # Full flow: update stitch project → re-export IP → update zynq → synth → impl → bitstream
 #============================================================================
 
-set STITCH_DIR  /home/barkie1/thesis/finn/finn_pipeline/vivado_stitch_proj_hv26s5y4
-set ZYNQ_DIR    /home/barkie1/thesis/finn/finn_pipeline/vivado_zynq_proj_fobcvtlq
-set OUTPUT_DIR  /home/barkie1/mvau_pipeline/fpga
+set STITCH_DIR  ${MARS_ROOT}/thesis/finn/finn_pipeline/vivado_stitch_proj_hv26s5y4
+set ZYNQ_DIR    ${MARS_ROOT}/thesis/finn/finn_pipeline/vivado_zynq_proj_fobcvtlq
+set OUTPUT_DIR  ${MARS_RTL_ROOT}/fpga
 set PART        xc7z020clg400-1
 
 #============================================================================
