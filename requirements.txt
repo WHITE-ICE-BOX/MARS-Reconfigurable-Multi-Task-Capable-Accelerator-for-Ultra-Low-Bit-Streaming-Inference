@@ -1,9 +1,0 @@
-# 訓練環境（AI_model_train；實驗於 Python 3.8 + CUDA 12.1 驗證）
-torch==2.4.1
-torchvision==0.19.1
-brevitas==0.12.0
-numpy<2
-matplotlib
-pandas
-# FINN 合成不在此環境:使用 FINN v0.9 官方 Docker(內含相依)
-# 板端:PYNQ-Z2 原廠 image(pynq 套件),無需本檔
