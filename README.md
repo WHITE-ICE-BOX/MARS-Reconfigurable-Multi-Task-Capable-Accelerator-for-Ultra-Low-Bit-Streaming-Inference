@@ -221,8 +221,8 @@ MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、Py
 - RTL golden vectors:五模組 `.dat` 已補入 `RTL/verification/mvau*_testbench/golden_data/`,expected 向量合計 **43,520**（`manifest.csv`);testbench 路徑改相對。
 - FPGA report 錯置:`MARS_throughput_2ds/` 先前三份 routed report 為 backbone 之誤植副本,已移除並以 `REPORT_MISSING.md` 標明;`FPGA/results/SHA256SUMS.txt` 提供現存 report 之 checksum。
 
-**部分已翻案/部分仍依賴原始工程**
-- **MARS throughput routed report**（41,729 LUT / 2.215 W）:原 Vivado 工程未保存,需重跑 implementation 產生。
+**建置產物由接手者重跑產生**
+- **MARS throughput routed report**（41,729 LUT / 2.215 W,論文 Table 5.12/5.13）:Vivado 建置產物,接手者重跑 implementation 即得,不另附。
 - **GPU/Jetson 跨平台量測**（Table 5.19/5.20）:量測腳本已於 2026-07 自 RTX 4090 主機取回,收錄於 [`Cross_Platform/`](Cross_Platform/)（GPU 端 `benchmark_*_10x.py`＋NVML `PowerMonitor`、prior-art 3×3 Conv-Adapter 基線、`_b1_tables.py` 彙整;Jetson 端 `benchmark*.py`）;協定 batch1000/n=10 完整,可於同級硬體重跑。**惟逐次 raw stdout log 未保存**,最終表格為彙整值。
 - **板上逐次原始 log**（Table 5.23 之 10 次準確率、50 次切換）:當時未保存 stdout,`FPGA/results/onboard_measurements.md` 僅存統計摘要;量測腳本在 repo,可於 PYNQ-Z2 重生。
 - **五任務 deployment checkpoint 與圖 5.2 probe checkpoint**:`gen_3ds_cfg.py`／`rc_probe_fig5_2.py` 需之;成品 payload（`runtime_weights/`,每任務 25,088 B）與 probe 輸出 JSON（`Figures_Analysis/rc_probe_out.json`）已在 repo,但從 checkpoint 重生之鏈需原 checkpoint。
