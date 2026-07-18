@@ -1,6 +1,19 @@
+# LaTeX 編譯中間產物
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.loa
+*.synctex.gz
+*.bbl
+*.blg
+*.fls
+*.fdb_latexmk
+# Python
 __pycache__/
 *.pyc
-*.log
-*.jou
-*.backup.*
-.ipynb_checkpoints/
+# 系統
+.DS_Store
+# 注意:論文成品 *.pdf 不忽略(要保留)

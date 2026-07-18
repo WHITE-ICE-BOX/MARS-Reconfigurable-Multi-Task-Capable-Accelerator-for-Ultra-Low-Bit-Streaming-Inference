@@ -4,7 +4,9 @@
 - `MARS_會議論文.tex`：IEEEtran conference 格式,5 頁。
 - `MARS_會議論文.pdf`：編譯成品。
 - `IEEEtran.cls`：會議 document class（已隨附,確保離線可編）。
-- `*.png`／`*.pdf`：所用圖檔。
+
+
+- `figures/`：所用圖檔。
 
 ## 如何把 .tex 編譯成 PDF
 

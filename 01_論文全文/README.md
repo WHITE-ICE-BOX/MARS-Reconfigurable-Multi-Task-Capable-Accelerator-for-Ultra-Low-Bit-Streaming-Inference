@@ -6,6 +6,8 @@
 - 其餘 `*.png`／`*.pdf`：論文所用之圖檔（`\includegraphics` 引用,須與 `.tex` 同目錄）。
 - 圖片**原始編輯檔**（python 腳本／架構圖 pptx）見 [`../02_圖片原始檔/`](../02_圖片原始檔/)。
 
+- `figures/`：論文所用之圖檔（`\graphicspath` 已設,`.tex` 內 `\includegraphics` 直接寫檔名即可）。
+
 ## 如何把 .tex 編譯成 PDF
 
 **引擎**：XeLaTeX（**不可**用 pdflatex,因需系統字型與 CJK）。TeX Live 2022 以上。
