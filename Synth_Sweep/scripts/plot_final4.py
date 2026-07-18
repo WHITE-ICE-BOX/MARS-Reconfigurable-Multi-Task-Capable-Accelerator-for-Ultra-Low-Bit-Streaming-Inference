@@ -1,3 +1,10 @@
+# plot_final4.py — 論文 Fig 5.4/5.5(多分支增益 vs LUT / 功耗)。
+# 數值來源:下方 MEAN16/HARD8/EASY8/BEST 為 20 對部署 sweep(results/*_configA_cross)與
+#   Synth_Sweep/results_archive 之彙整(collect_tables.py 可重算);此處內嵌最終值以固定產圖。
+# 輸出:預設 ./fig_out/(可用 MARS_FIG_OUT 覆蓋),自動建目錄。
+import os as _os
+_OUT=_os.environ.get("MARS_FIG_OUT", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),"fig_out"))
+_os.makedirs(_OUT, exist_ok=True)
 #!/usr/bin/env python3
 """Final trade-off set: 4 separate figures.
   {Compact, Throughput} x {LUT resource axis, power axis}
@@ -106,8 +113,8 @@ def draw(tag, axis):   # axis in {"lut", "power"}
     ax.grid(True, color=GRIDC, lw=0.6)
     ax.set_axisbelow(True)
     fig.tight_layout(rect=(0, 0.065, 1, 1))
-    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_lut.png")
-    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_lut.pdf")
+    fig.savefig(_os.path.join(_OUT, f"final_{tag}_lut.png"))
+    fig.savefig(_os.path.join(_OUT, f"final_{tag}_lut.pdf"))
     plt.close(fig)
 
 
@@ -144,8 +151,8 @@ def draw_power(tag):
     ax.grid(True, axis="y", color=GRIDC, lw=0.6)
     ax.set_axisbelow(True)
     fig.tight_layout()
-    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_power.png")
-    fig.savefig(f"mvau_multibranch_synth/fig16/final_{tag}_power.pdf")
+    fig.savefig(_os.path.join(_OUT, f"final_{tag}_power.png"))
+    fig.savefig(_os.path.join(_OUT, f"final_{tag}_power.pdf"))
     plt.close(fig)
 
 

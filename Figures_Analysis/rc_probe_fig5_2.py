@@ -56,6 +56,6 @@ for n,m in downs:
     out['layers'][n]={'hist_h':res[n]['hist_h'].tolist(),'hist_h0iso':res[n]['hist_h0iso'].tolist(),
         'iso_flip':res[n]['iso_flips']/res[n]['total'],'cum_flip':res[n]['cum_flips']/res[n]['total'],
         'bias':m.bias.data.cpu().flatten().tolist()}
-json.dump(out,open('/tmp/rc_probe2_out.json','w'))
+json.dump(out,open('rc_probe_out.json','w'))
 for n in names: print(n,'iso=%.4f cum=%.4f'%(out['layers'][n]['iso_flip'],out['layers'][n]['cum_flip']))
 print('DONE',nimg)

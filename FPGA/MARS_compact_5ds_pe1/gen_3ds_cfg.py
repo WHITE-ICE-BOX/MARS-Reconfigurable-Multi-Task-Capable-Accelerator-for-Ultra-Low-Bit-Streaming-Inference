@@ -1,5 +1,6 @@
 # ===========================================================================
 # [交接導向註解]
+# 注意:成品 payload(runtime_weights/)已在 repo;本腳本為其產生程式,重生需五任務 checkpoint(大檔未隨附)與 Brevitas 原始碼(設 BREVITAS_SRC)。
 # ★ 把 PyTorch 參數打包成板上 runtime_weights/<dataset>/*.bin。流程：FPGA。
 # 輸出 little-endian u32 stream，可直接 mmap 寫入 cfg_hub（位址 = (unit<<13)+(word<<2)）。
 # 這就是『板上把參數包成 .bin』的腳本；產生 runtime 切換用的 per-task 參數。
@@ -25,12 +26,13 @@ cfg_hub byte address = (unit << 13) + (word_addr << 2)
   word 1664..1664+255: contrib_lut
 """
 import os, sys, struct, json
-sys.path.insert(0, "finn_brevitis/brevitas/src")
+import os
+if os.environ.get("BREVITAS_SRC"): sys.path.insert(0, os.environ["BREVITAS_SRC"])  # 需 Brevitas 原始碼路徑
 import warnings; warnings.filterwarnings('ignore')
 import torch
 import numpy as np
 
-ROOT = "mvau_pipeline_runtime_3ds_pe1"
+ROOT = os.environ.get("MARS_CKPT_ROOT", ".")  # 五任務 checkpoint 目錄;成品 payload 已在 runtime_weights/
 CKPT_DIR = f"{ROOT}/sw/checkpoints"
 OUT_DIR = f"{ROOT}/sw/runtime_weights"
 

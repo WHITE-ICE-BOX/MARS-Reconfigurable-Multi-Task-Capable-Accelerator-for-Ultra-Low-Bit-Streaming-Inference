@@ -12,7 +12,8 @@ Outputs Markdown (tables.md) + LaTeX (tables.tex).
 import os
 import re
 
-ROOT = "mvau_multibranch_synth"
+import os
+ROOT = os.environ.get("MARS_SYNTH_ROOT", os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))  # repo 內 Synth_Sweep/
 DEV = dict(LUT=53200, FF=106400, BRAM=140, DSP=220, SLICE=13300)
 
 # Original published M=1 numbers (post-implementation, thesis Tables 5.11/5.12)
