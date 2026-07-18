@@ -30,26 +30,36 @@ import os
 import re
 import shutil
 
-FINN_BASE = "thesis/finn/finn_cifar10"
+import os, glob as _glob
+# FINN 產生碼根目錄:用環境變數指定(每次 build 路徑不同),預設當前目錄下的 finn build tree
+FINN_BASE = os.environ.get("FINN_CODEGEN_DIR", "thesis/finn/finn_cifar10")
+
+def _resolve(base_glob):
+    """FINN 每次 build 會在 code_gen_ipgen_..._<8字hash> 加不同尾綴;用 wildcard 抓,唯一才回傳。"""
+    hits = sorted(_glob.glob(base_glob))
+    if len(hits) == 1:
+        return hits[0]
+    raise SystemExit(f"[patch_finn_ips] 找不到唯一目錄: {base_glob} (命中 {len(hits)} 個);"
+                     f"請確認 FINN_CODEGEN_DIR,或該層是否已 ipgen。")
 
 # Per-IP config
 IPS = {
     "MVAU_hls_0": dict(
-        dir_glob=f"{FINN_BASE}/code_gen_ipgen_StreamingDataflowPartition_1_MVAU_hls_0_1bj4wrht",
+        dir_glob=f"{FINN_BASE}/code_gen_ipgen_StreamingDataflowPartition_1_MVAU_hls_0_*",
         rom_data_width=11,
         rom_addr_width=6,
         rom_depth=64,
         cfg_wdata_width=32,  # write as u32 (use low bits)
     ),
     "MVAU_hls_6": dict(
-        dir_glob=f"{FINN_BASE}/code_gen_ipgen_StreamingDataflowPartition_1_MVAU_hls_6_uplvgsm4",
+        dir_glob=f"{FINN_BASE}/code_gen_ipgen_StreamingDataflowPartition_1_MVAU_hls_6_*",
         rom_data_width=8,
         rom_addr_width=9,
         rom_depth=512,
         cfg_wdata_width=32,
     ),
     "MVAU_hls_7": dict(
-        dir_glob=f"{FINN_BASE}/code_gen_ipgen_StreamingDataflowPartition_1_MVAU_hls_7_5nfvi0dz",
+        dir_glob=f"{FINN_BASE}/code_gen_ipgen_StreamingDataflowPartition_1_MVAU_hls_7_*",
         rom_data_width=10,
         rom_addr_width=9,
         rom_depth=512,
@@ -309,7 +319,7 @@ def patch_component_xml(xml_path, cfg):
 
 
 def patch_one_ip(name, cfg):
-    base = cfg["dir_glob"]
+    base = _resolve(cfg["dir_glob"])
     print(f"\n=== {name}: {base} ===")
     # Find HLS verilog dir
     ip_dir = os.path.join(
