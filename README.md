@@ -126,7 +126,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 | Fig 5.2 | RC 機制層級探查（偏置分佈/前激活/翻轉率） | `Figures_Analysis/rc_probe_fig5_2.py`（GPU 端）＋`plot_rc_mechanism_fig5_2.py` | `Figures_Analysis/rc_probe_out.json` |
 | Fig 5.3 | 佈局圖（Vivado implemented design 截圖） | Vivado GUI（無腳本） | `FPGA/results/` |
 | Table 5.19 / 5.20 | 跨平台吞吐/功耗/能效 | `FPGA/*/board_test_10k.py`（FPGA 端）；GPU/Jetson 量測腳本於已下線之 4090 主機（見論文方法敘述） | `FPGA/results/` |
-| Table 5.22 / 5.23、§5.6 | 板上五任務切換準確率/資源/1.86 ms | `FPGA/MARS_compact_5ds_pe1/board_test_v3force.py`、`board_switch_fast_bench.py`、`runtime_3ds.py`、`gen_3ds_cfg.py` | `FPGA/MARS_compact_5ds_pe1/runtime_weights/`、`FPGA/results/` |
+| Table 5.22 / 5.23、§5.6 | 板上五任務切換準確率/資源/1.86 ms | `FPGA/MARS_compact_5ds_pe1/board_test_v3force.py`（板上五任務精度+切換延遲）、`runtime_3ds.py`（切換器）、`gen_3ds_cfg.py`（payload 產生） | `FPGA/MARS_compact_5ds_pe1/runtime_weights/`、`FPGA/results/` |
 | Table 4.2、§4.3–4.5 | Adapter/Super Wrapper/cfg_hub RTL 與驗證 | `RTL/`（部署變體）、`RTL/gen_scripts/`、golden/testbench 於 `FINN_Compile/`＋`RTL/` | `RTL/hardware_assets/` |
 
 ---
@@ -162,10 +162,33 @@ python bnn_pynq_train_bitwidth.py --mode adapter --net_bit 1 --dataset SVHN   --
 1. **adapter `.dat` / configuration blob**:`RTL/gen_scripts/prepack_adapter_dat.py`、`make_adp_contrib_luts.py`;五任務 blob 成品在 `FPGA/MARS_compact_5ds_pe1/runtime_weights/{cifar10,svhn,fashion,stl10,cinic10}/`,重生程序見 `FPGA/README.md`。
 2. **RTL 模擬**:`RTL/verification/mvau{1..5}_testbench/`（五模組合計 43,520 向量;golden 由 `export_testbench_data.py` 自硬體佈局權重映像產生）;頂層模擬資產於 `RTL/verification/top_sim/`（`run_sim_top_*.tcl`、輸入 hex、baseline sim log）。
 3. **Vivado 專案重建**:`RTL/tcl/make_project.tcl` → `package_ips.tcl` → `SoC/` block design → `RTL/tcl/build_bitstream.tcl`（OOC cache 注意事項見 `RTL/README.md`）。FINN 產生碼上的最小手動補丁由 `RTL/gen_scripts/patch_finn_ips.py` 自動施加（免 GUI）。
-4. **PYNQ-Z2 部署**:把 `FPGA/<build>/` 整夾放上板,依 `FPGA/README.md` 執行 `board_test_10k.py`（吞吐/精度）與 `board_switch_fast_bench.py`（切換延遲,50 次隨機切換統計）。
+4. **PYNQ-Z2 部署**:把 `FPGA/<build>/` 整夾放上板,依 `FPGA/README.md` 執行 `board_test_10k.py`（吞吐/精度）與 `board_test_v3force.py`（五任務精度+切換延遲,`sw.switch()` 逐次量測）。
 
 ### 9.5 論文表格重現
 見〈八、論文對應表〉:每張實驗表/資料驅動圖對應之 runner、輸出 CSV 與繪圖腳本。彙整層級（多 CSV → 論文表格數字）由 `Synth_Sweep/scripts/collect_tables.py` 與各 `results/README.md` 說明。
+
+
+### 9.6 跑新實驗（給接手的人）
+
+**改一個旗標就是一個新配置**——訓練主程式 `bnn_pynq_train_bitwidth.py` 全部以 CLI 旗標控制,不需改程式碼:
+
+| 想改的東西 | 旗標 |
+|---|---|
+| 目標資料集 | `--dataset {CIFAR10,SVHN,STL10,FashionMNIST,CINIC10}` |
+| 主幹來源 checkpoint | `--finetune_checkpoint ../backbones/<src>_1w1a.tar` |
+| 分支數 M | `--num_branches {1,2,3,4}` |
+| RC 開關 | `--no_rc`（關）/ 省略即開,配 `--adapter_bias` |
+| 幾何:寬版 vs 部署 | 寬版 `--adapter_kernel 3 --adapter_alpha per_channel --adapter_mid_basis out`;部署 `--adapter_kernel 1 --adapter_alpha scalar --adapter_mid_basis in` |
+| 位元寬度 | `--net_bit {1,2,4,8}` `--adapter_bit_width N` |
+| seed | `--random_seed N` |
+
+**批次掃描**:`AI_model_train/runners/run_*.py` 是上述主程式的批次包裝（迴圈跑多 dataset/M/seed,收 CSV）。要新增一組掃描,複製最接近的 runner、改它的 dataset/M/seed 清單即可,輸出自動落到 `results/<你的名稱>/`。
+
+**加新資料集**:於 `src/bnn_pynq_train_bitwidth.py` 的 `get_dataloader()` 增一個分支(統一 resize 到 32×32×3、10 類),其餘流程不動。
+
+**新硬體變體（新 M / 新折疊）**:`Synth_Sweep/scripts/gen_multibranch_rtl.py` 由 M=1 RTL 生成 M 分支變體;改折疊表在 `FINN_Compile/notebooks/pe1_cnv_end2end.ipynb` 的 folding cell。
+
+> 所有腳本路徑以 `MARS_*` 環境變數或 `Path(__file__)` 解析,乾淨 clone 即可起跑(訓練類需先 `pip install -r requirements.txt`)。
 
 ---
 

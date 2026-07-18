@@ -56,7 +56,6 @@ FPGA/
     ├── runtime_3ds.py               #   ★ 主 runtime 切換 driver（依資料集載入 runtime_weights）
     ├── gen_3ds_cfg.py               #   ★ 把 PyTorch 參數打包成 runtime_weights/*.bin（板上 .bin 產生器）
     ├── board_test_10k.py            #   各資料集 10k 張板上精度（→ 論文板上精度表）
-    ├── board_switch_fast_bench.py   #   切換延遲量測（→ 1.86 ms）
     ├── data/                        #   *_test_y.npy 標籤
     └── runtime_weights/             # ★ 五資料集 per-task 參數（每組 34 個 .bin）
         ├── cifar10/  svhn/  fashion/  stl10/  cinic10/

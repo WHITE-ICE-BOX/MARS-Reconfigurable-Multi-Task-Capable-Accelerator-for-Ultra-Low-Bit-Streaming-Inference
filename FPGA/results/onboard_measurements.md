@@ -1,6 +1,6 @@
 # FPGA 上板量測結果（PYNQ-Z2, XC7Z020, 100 MHz）
 
-板上測試（`board_test_10k.py` / `batch_test.py` / `board_switch_fast_bench.py`）為 print 到
+板上測試（`board_test_10k.py` / `board_test_v3force.py`）為 print 到
 stdout，未存檔；此處彙整論文回報之**實測數值**，並附各 build 的 Vivado routed 報告
 （`<build>/top_wrapper_{utilization_placed,power_routed,timing_summary_routed}.rpt`）作為
 資源／功耗／時序的原始依據。
@@ -31,7 +31,7 @@ stdout，未存檔；此處彙整論文回報之**實測數值**，並附各 bui
 
 - **1.86 ± 0.04 ms**（50 次切換平均），每次寫 6,757 個 32-bit cfg word＝27,028 bus bytes（sub-word 欄位如 byte-packed classifier 權重於 cfg bus 上擴為完整字）；blob 儲存 25,088 bytes（≈25 KB）。切換後推論正確性另行以全測試集驗證。
 - 無 fabric reconfiguration、無 fabric-reconfiguration controller。
-- 量測腳本：`MARS_compact_5ds_pe1/board_switch_fast_bench.py`。
+- 量測腳本：`MARS_compact_5ds_pe1/board_test_v3force.py`（`RuntimeSwitcher.switch()` 回傳每次 ms）。
 
 ## 三、吞吐量 / 延遲 / 能效
 
