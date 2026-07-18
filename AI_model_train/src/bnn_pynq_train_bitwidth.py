@@ -44,9 +44,6 @@ from models_bitwidth.CNV_param import cnv_param
 
 
 def set_global_seed(seed):
-    # 把所有亂數源（python / numpy / torch CPU+GPU）與 cuDNN 設成完全決定性，
-    # 確保論文數字「同 seed 可重現」。deterministic=True + benchmark=False 關掉
-    # cuDNN 的非決定性演算法；CUBLAS_WORKSPACE_CONFIG 是 CUDA 決定性 matmul 的必要環境變數。
     if seed is not None:
         print(f"[Seed] Resetting Global Seed to {seed}...")
         random.seed(seed)
@@ -122,10 +119,6 @@ def download_and_extract_cinic10(root):
 
 
 def get_dataloader(args):
-    # 目標：所有資料集都吐出 32x32x3 張量以吻合 CNV backbone 輸入幾何。
-    # 各資料集差異：CIFAR/SVHN/CINIC 原生 32x32；STL10 需 Resize(96->32)；
-    # FashionMNIST 需 Resize + Grayscale->3 通道。train_transform 含資料增強
-    # （RandomCrop/Flip），to_tensor 為測試用（不增強）。
     to_tensor = transforms.Compose([transforms.ToTensor()])
     if args.dataset == 'CIFAR10':
         train_transform = transforms.Compose([
@@ -162,8 +155,6 @@ def get_dataloader(args):
             transforms.ToTensor()])
         builder = CommonFashionMNIST
     elif args.dataset == 'CINIC10':
-        # CINIC10 用 ImageFolder 讀官方 train / test 兩個子集（各 90k，互斥、無洩漏）；
-        # 官方還有 valid 子集（90k）此處不使用。總計 270k = 90k×3。
         cinic_dir = download_and_extract_cinic10(args.datadir)
         train_transform = transforms.Compose([
             transforms.RandomCrop(32, padding=4),
@@ -260,10 +251,7 @@ def parse_args():
 
     args = p.parse_args()
 
-    # mode 決定 backbone 是否凍結（這是 PEFT vs full fine-tune 的關鍵）：
-    #   adapter      → 凍結 backbone，只訓 adapter（num_branches 預設補成 1）→ MARS 的做法
-    #   frozen_only  → 凍結 backbone，只訓最後分類層（linear probe，當下限對照）
-    #   pretrain / full_ft → 不凍結，整網路一起訓（pretrain 訓 backbone；full_ft 為上界）
+    # Mode -> backbone freezing rules
     if args.mode == 'adapter':
         args.freeze_backbone = True
         if args.num_branches == 0:
@@ -277,51 +265,43 @@ def parse_args():
 
 
 def build_model(args):
-    """依指定 bit-width 建 CNV，並（選擇性）注入 Adapter。"""
-    # 1) 先載入該位元寬度的 CNV 設定（cnv_1w1a / cnv_2w2a ... 的 .ini）。
+    """Build CNV with the requested bitwidth and (optionally) an adapter."""
     cfg_name = f'cnv_{args.net_bit}w{args.net_bit}a'
     _, cfg = model_with_cfg_bitwidth(cfg_name)
 
-    # 2) 若要 Adapter（num_branches>0），把命令列的 adapter 旗標寫進 cfg 的 [ADAPTER] 區段。
-    #    cnv_param() 會讀這些值決定每層 Adapter 的「幾何」：
-    #      KERNEL_SIZE(1/3)、ALPHA_MODE(scalar/per_channel)、MID_BASIS(in=Cin/4 / out=Cout/4)、
-    #      USE_RC(殘差校正開關)、NUM_BRANCHES(M)。
-    #    → deployed 幾何 = kernel1 + scalar + in；accuracy-best = kernel3 + per_channel + out。
     if args.num_branches > 0:
         if not cfg.has_section('ADAPTER'):
             cfg.add_section('ADAPTER')
-        cfg.set('ADAPTER', 'NUM_BRANCHES', str(args.num_branches))   # M：平行分支數
+        cfg.set('ADAPTER', 'NUM_BRANCHES', str(args.num_branches))
         cfg.set('ADAPTER', 'BIT_WIDTH', str(args.adapter_bit_width))
-        cfg.set('ADAPTER', 'USE_RC', str(not args.no_rc))            # RC（down-conv Int8 bias）
+        cfg.set('ADAPTER', 'USE_RC', str(not args.no_rc))
         cfg.set('ADAPTER', 'RC_BIT_WIDTH', str(args.rc_bit_width))
         cfg.set('ADAPTER', 'KERNEL_SIZE', str(args.adapter_kernel))
         cfg.set('ADAPTER', 'ACT_MODE', args.adapter_act)
         cfg.set('ADAPTER', 'ALPHA_MODE', args.adapter_alpha)
-        cfg.set('ADAPTER', 'USE_BIAS', str(args.adapter_bias))       # =RC 開關的實際旗標
+        cfg.set('ADAPTER', 'USE_BIAS', str(args.adapter_bias))
         cfg.set('ADAPTER', 'MID_BASIS', args.adapter_mid_basis)
 
-    # 3) 建模型前重設 seed（確保權重初始化可重現），再依 cfg 實例化 CNV(+Adapter)。
     set_global_seed(args.random_seed)
     model = cnv_param(cfg)
     if args.num_branches > 0:
-        model.use_adapter = True   # 開啟 forward 時的 adapter 旁路
+        model.use_adapter = True
     return model
 
 
 def main():
-    # 訓練主流程：解析參數 → 建模型(含/不含 adapter) → 載資料 → 交給 Trainer 跑。
     args = parse_args()
     set_global_seed(args.random_seed)
 
-    model = build_model(args)                              # CNV(+Adapter)，依 mode 決定凍結
-    train_loader, test_loader = get_dataloader(args)       # 資料統一成 32x32x3
+    model = build_model(args)
+    train_loader, test_loader = get_dataloader(args)
 
     trainer = Trainer(model, train_loader, test_loader, args)
     print("--- Pre-training Check ---")
-    print_model_details(model)                             # 印總參數量 / 可訓練參數量（看 adapter 開銷）
+    print_model_details(model)
 
-    best_acc = trainer.train_model()                       # 跑訓練，回傳最佳驗證準確率
-    print(f"Final Best Accuracy: {best_acc}%")             # ← runner/腳本就是抓這行擷取結果
+    best_acc = trainer.train_model()
+    print(f"Final Best Accuracy: {best_acc}%")
 
     # If pretraining a backbone, copy best.tar to claude/pretrained_backbones/
     if args.mode == 'pretrain' and args.dataset == 'CIFAR10':

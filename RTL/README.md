@@ -1,7 +1,10 @@
 # RTL — Adapter / Super Wrapper / cfg_hub 硬體描述
 
 自研 RTL，把 FINN 產生的每個 **MVAU** 包成「**Super Wrapper**」（MVAU 主幹 + Adapter 旁路融合），
-並提供 **`cfg_hub`** 執行時期多任務切換控制器。共 5 個 MVAU 帶 Adapter（MVAU1–5），全部 1W1A。
+並提供 **Function Switch Controller（`cfg_hub`）** 執行時期任務切換控制器。共 5 個 MVAU 帶 Adapter（Super1–5），全部 1W1A。
+
+> **本資料夾為部署之 compactness N-task 變體**（論文 §4.3–4.5）：adapter down/up 權重、RC、貢獻 LUT 皆 cfg 可寫（`SIM_INIT_ROM` 巨集僅供模擬初始化，合成後開機為空、由 host 載入）；`cfg_hub` 為 **8 位址單元／9 實體目的地** 版（`byte_addr[15:13]` 解碼，unit 0 依 bit[12] 分 MVAU0 低/高半），與論文 §4.5 及 Fig 4.9/4.10 一致。
+> throughput 變體（adapter 權重以 `$readmemh` 烘入、僅閾值/分類器可切）與早期 5 埠 `cfg_hub` 保存於 [`variant_throughput/`](variant_throughput/) 供對照。
 
 > 命名：論文中「Super Wrapper」對應 5 個帶 Adapter 的卷積層（MVAU1–5）。MVAU0/FC 層無 Adapter。
 
@@ -64,7 +67,7 @@ RTL/
     └── RC_m1_full.tar               #  final_sw.py 載入的 HW 匯出 checkpoint（deployed M1 + RC）
 ```
 
-★ = 對應論文核心貢獻「單一 bitstream、控制器無關的多任務切換」。
+★ = 對應論文核心貢獻「單一 bitstream、免 fabric 重組態控制器之執行時期任務切換」。
 
 > **PyTorch → 硬體流程**：訓練好的 checkpoint（`gen_scripts/RC_m1_full.tar`）經
 > `final_sw.py` 轉成 `hardware_assets/*.dat`（FINN memblock + adapter 權重 + LUT/threshold），

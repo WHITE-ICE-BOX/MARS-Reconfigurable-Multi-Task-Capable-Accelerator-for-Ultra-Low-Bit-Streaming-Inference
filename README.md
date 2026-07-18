@@ -1,32 +1,36 @@
-# MARS — 超低位元串流推論的可重組多任務加速器架構
+# MARS — 具執行時期任務切換之超低位元串流推論可重組加速器架構
 
-> **MARS: A Reconfigurable Multi-Task Accelerator Architecture for Ultra-Low-Bit Streaming Inference**
-> 碩士論文最終版程式碼與數據釋出。
+> **MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference**
+> （MARS = **M**ulti-Branch **A**dapter **R**econfigurable **S**treaming-accelerator）
+> 碩士論文最終版程式碼與數據釋出。論文中每一項實驗與資料驅動圖表的對應程式碼見〈八、論文對應表〉。
 
 ---
 
 ## 一、這個專案在做什麼
 
-MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個**凍結的 1W1A**（1-bit weight / 1-bit activation）**FINN streaming-dataflow CNV backbone**，並加入一個 AXI-Lite 的 **`cfg_hub`**（configuration hub）做**執行時期（runtime）多任務切換**。
+MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個**凍結的 1W1A**（1-bit weight / 1-bit activation）**FINN streaming-dataflow CNV backbone**，並加入一個 AXI-Lite 的 **Function Switch Controller（`cfg_hub`）** 做**執行時期任務切換（runtime task switching）**。
 
-核心貢獻：
-1. **硬體整合**——把自研 Adapter RTL 以「Super Wrapper」方式包進 FINN 產生的 MVAU（Matrix-Vector-Activation Unit）串流資料流，週期精準（cycle-accurate）同步。
-2. **單一 bitstream 多任務切換**——`cfg_hub` 讓**一顆 bitstream**在不做 fabric reconfiguration（不重組態 FPGA 邏輯、不需 reconfiguration controller）下，以 $O(1)$ 晶片成本服務任意數量的同 backbone 分類任務；切換僅是寫入約 25 KB 的 per-task 參數（6,757 cfg words）（≈1.86 ms）。
-3. **RC（Residual Correction）的 1-bit 關鍵性發現**——down-convolution 的 Int8 bias 吸收進 accumulator reset，於 1-bit 貢獻極大、零硬體成本。
+核心貢獻（與論文定稿口徑一致）：
+1. **硬體整合**——自研 Adapter RTL 以「Super Wrapper」方式包進 FINN 產生的 MVAU（Matrix-Vector-Activation Unit）串流資料流，週期精準（cycle-accurate）同步；不用 DSP、不增加 BRAM tile（adapter 狀態全在分散式 RAM）。
+2. **單一 bitstream 執行時期任務切換**——`cfg_hub`（19 LUT）讓**一顆 bitstream** 在不做 fabric reconfiguration 下，服務**合格任務**（同凍結 backbone、32×32×3 輸入、同 10 類輸出 head、分類任務）：晶片成本對任務數為 O(1)、主機端組態影像隨任務數 O(T) 成長；切換＝寫入一份 25,088 bytes 的任務參數（6,757 個 32-bit 寫入 = 27,028 bus bytes），組態重寫約 1.86±0.04 ms（切換後推論正確性另行驗證）。板上以**五份 host 常駐任務影像**展示（FPGA 上僅保存一組 active 任務狀態）。
+3. **多分支 Adapter 擴展**——單分支拓寬為 M 條平行分支（各自 down/up 權重、RC、α），部署幾何 20 組 backbone→target 掃描平均 +3.36 pp（最高 +11.33 pp）；M≥2 超出 XC7Z020 容量，僅 RTL 模擬＋合成後估計。
+4. **RC（Residual Correction）發現與硬體映射**——RC 是 Conv-Adapter **既有的** down-convolution Int8 偏置（非本作新發明）；本作系統性隔離其在 1W1A 的顯著較大實測效果（CIFAR-10→SVHN 部署幾何 +20~23 pp；2–8 bit 通常 ±0.3 pp、最大 1.4 pp），並映射為 accumulator 初始值——不新增加法器/DSP/管線級，其儲存（`ram_rc`）與組態位元組計入 adapter 成本。
 
-平台：**PYNQ-Z2（Xilinx XC7Z020）**，100 MHz；訓練於 **PyTorch + Brevitas**，硬體合成於 **FINN（Docker）+ Vivado 2022.2**。
+平台：**PYNQ-Z2（Xilinx XC7Z020）**，100 MHz；訓練於 **PyTorch + Brevitas**，硬體合成於 **FINN v0.9（Docker）+ Vivado 2022.2**。
 
 ---
 
-## 二、資料夾結構（對應論文五大子專案）
+## 二、資料夾結構
 
 | 資料夾 | 內容 | 來源主機 |
 |---|---|---|
-| [`AI_model_train/`](AI_model_train/) | 1W1A 量化感知訓練（QAT）與 Conv-Adapter 遷移學習的全部程式碼、各資料集 runner、預訓練 backbone、結果 CSV | RTX 4090 + A6000 |
-| [`FINN_Compile/`](FINN_Compile/) | FINN end-to-end dataflow 合成（在 Docker 內）：end2end notebook、CNV 模型、匯出之 ONNX | 本地 FINN |
-| [`RTL/`](RTL/) | Adapter／改過的 MVAU Super Wrapper／`cfg_hub` 切換控制器的 `.v`，以及打包/建置 `.tcl` | 本地 |
-| [`SoC/`](SoC/) | 最頂層 block design（PS + input/output DMA + dataflow partition） | 本地 Vivado |
-| [`FPGA/`](FPGA/) | 最終上板的 `.bit`/`.hwh`、driver、以及所有 runtime 參數（四種 build） | PYNQ-Z2 板 + 本地 |
+| [`AI_model_train/`](AI_model_train/) | 1W1A QAT 與 Conv-Adapter 遷移的全部程式碼、各實驗 runner、預訓練 backbone、結果 CSV | RTX 4090 + A6000 |
+| [`FINN_Compile/`](FINN_Compile/) | FINN end-to-end dataflow 合成（Docker 內）：end2end notebook、CNV 模型、匯出之 ONNX | 本地 FINN |
+| [`RTL/`](RTL/) | **部署版（compactness N-task、cfg 可寫）** Adapter / Super Wrapper / 8 單元 `cfg_hub` 的 `.v` 與打包 `.tcl`；throughput 變體與舊版存於 `RTL/variant_throughput/` | 本地 |
+| [`SoC/`](SoC/) | 頂層 block design（PS + input/output DMA + dataflow partition） | 本地 Vivado |
+| [`FPGA/`](FPGA/) | 上板 `.bit`/`.hwh`、driver、runtime 參數（四種 build） | PYNQ-Z2 + 本地 |
+| [`Synth_Sweep/`](Synth_Sweep/) | 多分支 M=1–4 合成掃描：RTL 產生器、M 分支 RTL、Vivado 報告與彙整 | 本地 Vivado |
+| [`Figures_Analysis/`](Figures_Analysis/) | 資料驅動圖表與分析腳本（Fig 5.2 RC 機制探查、Fig 5.4/5.5、last-epoch 交叉檢核） | A6000 + 本地 |
 
 每個資料夾內都有獨立的 `README.md` 做檔案層級說明。
 
@@ -51,7 +55,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
         ▼
 [5] 部署 (FPGA)
     .bit/.hwh + Python driver 上 PYNQ-Z2；runtime 換任務 = 透過 cfg_hub
-    寫入該任務約 25 KB 參數（6,757 cfg words）（≈1.86 ms，無 fabric reconfiguration）
+    寫入該任務 25,088 B 參數（6,757 個 32-bit 寫入）（組態重寫 ≈1.86 ms，無 fabric reconfiguration）
 ```
 
 ---
@@ -60,12 +64,12 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 
 | Build | 資料夾 | Bitstream | 用途 |
 |---|---|---|---|
-| Backbone, throughput（high-PE） | `FPGA/backbone_throughput/` | `resizer.bit` | 吞吐量基準（純 backbone） |
-| MARS, throughput, 2-dataset（high-PE） | `FPGA/MARS_throughput_2ds/` | `resizer_v1.bit` | 能效/吞吐量代表組態 |
-| Backbone, compact（PE=1） | `FPGA/backbone_compact_pe1/` | `resizer.bit` | compact 基準（純 backbone） |
-| MARS, compact, 5-dataset（PE=1） | `FPGA/MARS_compact_5ds_pe1/` | `resizer_3ds_v3.bit` | 板上精度正確性 + 5 資料集 runtime 切換 |
+| Backbone, throughput（異質 PE） | `FPGA/backbone_throughput/` | `resizer.bit` | 吞吐量基準（純 backbone） |
+| MARS, throughput, 2-task（異質 PE） | `FPGA/MARS_throughput_2ds/` | `resizer_v1.bit` | 能效/吞吐量代表組態（一任務烘入、一任務可切） |
+| Backbone, compactness（PE=1） | `FPGA/backbone_compact_pe1/` | `resizer.bit` | compactness 基準（純 backbone） |
+| MARS, compactness, N-task（PE=1） | `FPGA/MARS_compact_5ds_pe1/` | `resizer_3ds_v3.bit` | 板上準確率正確性 + 五組任務模型 runtime 切換 |
 
-> **PE** = Processing Element（MVAU 的平行折疊度）。`throughput` 採異質 per-layer PE 折疊（吞吐量高）；`compact` 採均勻 PE=1（換取 LUT 餘裕以容納多任務切換狀態）。
+> **PE** = Processing Element（MVAU 的平行折疊度）。throughput 採異質 per-layer PE 折疊；compactness 採均勻 PE=1，換取 LUT 餘裕以容納單一組完整 runtime 可寫之 active 任務狀態。
 
 ---
 
@@ -73,7 +77,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 
 | 階段 | 工具 |
 |---|---|
-| 訓練 | Python 3.8、PyTorch、Brevitas 0.12（1W1A QAT） |
+| 訓練 | Python 3.8、PyTorch 2.4、Brevitas 0.12（1W1A QAT） |
 | 合成 | FINN v0.9（Docker）、Vivado 2022.2 |
 | 板端 | PYNQ-Z2（XC7Z020）、PYNQ runtime、100 MHz |
 
@@ -95,6 +99,39 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 
 ## 七、注意事項
 
-- **大檔**：backbone（`*.tar`）、bitstream（`*.bit`/`*.hwh`）、ONNX、`*.npy`、`*.dat`、`*.bin` 皆為一般 git 物件（最大單檔 18.7 MB，皆在 GitHub 100 MB 限制內，故未使用 Git LFS）。
-- **未收錄**：原始逐 epoch 訓練 log（約 6.4 GB）不放；數據以各 `results/*.csv` 與 `results/final_accuracy_summary.txt` 為準。Vivado 工程與 FINN `code_gen` 中間產物（數十 GB）不放，僅保留可重現所需的原始碼與最終產物。
-- **資料集測試輸入**（如各 build 的 `*_test_x.npy`，約 30 MB）已排除，可由 `AI_model_train` 重新產生。
+- **Checkpoint 選點**：依 BNN-PYNQ 原始 trainer 流程，逐 epoch 以 test 集評估、保留最高分 epoch；論文已透明聲明此限制，並以 last-epoch 無選擇協定做交叉檢核（`Figures_Analysis/parse_lastepoch_b2.py`）。
+- **大檔**：backbone（`*.tar`）、bitstream、ONNX、`*.dat` 皆為一般 git 物件（最大單檔 18.7 MB，皆在 GitHub 100 MB 限制內）。
+- **未收錄**：原始逐 epoch 訓練 log（約 6.4 GB）與 Vivado/FINN 中間工程（數十 GB）不放；數據以各 `results/*.csv` 為準。
+- **RTL 變體**：`RTL/` 主體為部署之 compactness N-task 變體（adapter 權重/RC/LUT 皆 cfg 可寫；`SIM_INIT_ROM` 巨集僅供模擬初始化）。throughput 變體（權重烘入）與早期 5 埠 `cfg_hub` 存於 `RTL/variant_throughput/` 供對照。
+
+---
+
+## 八、論文對應表（實驗 / 圖表 ↔ 程式碼與數據）
+
+> 論文＝《MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference》最終版。手繪架構示意圖（Fig 3.1–3.3、4.1–4.12、PE 折疊示意、RC in Hardware、Task Switch 流程、FSC 電路）為繪圖軟體製作，無對應程式碼；下表涵蓋所有**實驗與資料驅動圖表**。
+
+| 論文位置 | 內容 | 程式碼 | 數據 |
+|---|---|---|---|
+| Table 3.1 / 3.2 | 位元寬度掃描（單分支 ±RC vs Full-FT；跨來源） | `AI_model_train/runners/run_configC_bits_rc.py`、`run_xx_to_others_bits.py` | `AI_model_train/results/*_configC_bits_rc/`、`*_to_others_bits/` |
+| Table 3.3 / 3.4、式 3.13 | Adapter/backbone 幾何與 MACs（解析計算） | `AI_model_train/src/models_bitwidth/CNV_param.py`（幾何定義） | — |
+| Table 5.2 | 資料集總覽 | `AI_model_train/src/bnn_pynq_train_bitwidth.py`（loader） | — |
+| Table 5.3 / 5.4 | 寬版幾何多分支掃描（CIFAR 來源＋跨來源） | `runners/run_v6.py`、`run_v6_cross.py`、`run_configC_cross.py` | `results/configC_sw_multi/`、`*_configC_cross/` |
+| Table 5.5 | Full-FT vs MARS M4（n=5 seed） | `runners/table56_5seed.py` | `results/table56_5seed/table56.csv` |
+| Table 5.6＋§5.2.5 | M=1 vs M=4 五-seed 配對檢定＋last-epoch 交叉檢核 | `runners/_b2_a6_runner.py`、`Figures_Analysis/parse_lastepoch_b2.py` | `results/b2_significance/results.csv` |
+| Table 5.8–5.10 | RC 消融（寬版/部署幾何、跨目標） | `runners/run_configA_bits_rc.py`、`run_v9.py` | `results/*_configA_bits_rc/`、`v9_cross_dataset/` |
+| Table 5.7 / 5.18 | 部署幾何 20 組 backbone→target 掃描 | `runners/run_configA_cross.py`（＋`run_v9.py` CIFAR 來源） | `results/{svhn,stl10,fashionmnist,cinic10}_configA_cross/`、`v9_cross_dataset/` |
+| §5.3.4 來源相依驗證 | FMNIST→SVHN 獨立重跑/seed2025 | `runners/fmnist_dep_verify.py`、`fmnist_s2025.py`、`fmnist_svhn200.py`、`fmnist_verify.py` | `results/fashionmnist_configA_verify/`、`fashionmnist_configC_SVHN_*/` |
+| Table 5.12 / 5.13 / 5.14 | 四 build 資源/功耗/PE 折疊（post-implementation） | `SoC/`＋`FPGA/*/`（Vivado 工程重建腳本） | `FPGA/results/`（utilization/power 報告） |
+| Table 5.15–5.17、Fig 5.4 / 5.5 | 多分支 M=1–4 合成掃描與權衡圖 | `Synth_Sweep/scripts/gen_multibranch_rtl.py` 等＋`Figures_Analysis/plot_fig5_4_5_5_tradeoff_power.py` | `Synth_Sweep/results_archive/`、`scripts/collect_tables.py` 彙整 |
+| Fig 5.2 | RC 機制層級探查（偏置分佈/前激活/翻轉率） | `Figures_Analysis/rc_probe_fig5_2.py`（GPU 端）＋`plot_rc_mechanism_fig5_2.py` | `Figures_Analysis/rc_probe_out.json` |
+| Fig 5.3 | 佈局圖（Vivado implemented design 截圖） | Vivado GUI（無腳本） | `FPGA/results/` |
+| Table 5.19 / 5.20 | 跨平台吞吐/功耗/能效 | `FPGA/*/board_test_10k.py`（FPGA 端）；GPU/Jetson 量測腳本於已下線之 4090 主機（見論文方法敘述） | `FPGA/results/` |
+| Table 5.22 / 5.23、§5.6 | 板上五任務切換準確率/資源/1.86 ms | `FPGA/MARS_compact_5ds_pe1/board_test_v3force.py`、`board_switch_fast_bench.py`、`runtime_3ds.py`、`gen_3ds_cfg.py` | `FPGA/MARS_compact_5ds_pe1/runtime_weights/`、`FPGA/results/` |
+| Table 4.2、§4.3–4.5 | Adapter/Super Wrapper/cfg_hub RTL 與驗證 | `RTL/`（部署變體）、`RTL/gen_scripts/`、golden/testbench 於 `FINN_Compile/`＋`RTL/` | `RTL/hardware_assets/` |
+
+---
+
+## 引用
+
+若使用本專案，請引用碩士論文：
+> Po-Chun Huang, "MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference," Master's Thesis, National Chung Cheng University, 2026.

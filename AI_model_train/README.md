@@ -42,11 +42,11 @@ AI_model_train/
 │
 └── results/                            # ── 結果數據（只放 results.csv，不放 6.4GB 原始 log）──
     ├── final_accuracy_summary.txt      #   全實驗 Final Best Accuracy 彙整
-    ├── svhn_to_others/ stl10_to_others/ fashionmnist_to_others/   # 跨來源 1-bit（→ 跨來源多 Adapter 表）
+    ├── svhn_to_others/ stl10_to_others/ fashionmnist_to_others/   # 跨來源 1-bit（→ 跨來源多分支 Adapter 表）
     ├── cifar10_to_others_bits/ svhn_to_others_bits/               # 跨來源 bit-width（→ 跨來源位元表）
-    ├── cifar10_configC_bits{,_rc}/ cifar10_configC_cross/         # CIFAR→targets 位元/跨資料集（accuracy-best）
-    ├── configC_sw_multi/                                          # 軟體版多 Adapter 補格
-    ├── v6/ v_v6_bit/ v_v6_cross/ v_v6_cross_m/ v7_multi_rc/       # accuracy-best 幾何 + RC 消融
+    ├── cifar10_configC_bits{,_rc}/ cifar10_configC_cross/         # CIFAR→targets 位元/跨資料集（寬版（wide））
+    ├── configC_sw_multi/                                          # 軟體版多分支 Adapter 補格
+    ├── v6/ v_v6_bit/ v_v6_cross/ v_v6_cross_m/ v7_multi_rc/       # 寬版（wide）幾何 + RC 消融
     ├── v9_cross_dataset/ v9_ft_baseline/ v9ft_cross_bit/         # full-FT 上界（1-bit 與 bit-width）
     ├── v3_compare/ v3_compare_50ep_2026-05-03/                    # kernel 3×3 vs 1×1 單軸消融（§5.3.6）
     ├── v_seed/                                                    # n=3 multi-seed 變異
@@ -60,10 +60,10 @@ AI_model_train/
 
 | 幾何 | down-conv kernel | hidden 寬度（mid） | α scaling | 用途 |
 |---|---|---|---|---|
-| **accuracy-best** | 3×3 | $C_{\text{out}}/4$（mid='out'） | per-channel | 軟體準確率上界 |
+| **寬版（wide）** | 3×3 | $C_{\text{out}}/4$（mid='out'） | per-channel | 軟體準確率上界 |
 | **deployed** | 1×1 | $C_{\text{in}}/4$（mid='in'） | scalar | FPGA 部署版（省資源），燒進 bitstream 的組態 |
 
-`runners/` 中 `v6` / `configC` 家族 = **accuracy-best**；**deployed** 幾何以 `--adapter_kernel 1 --adapter_alpha scalar --adapter_mid_basis in` 訓練（見 `_b2_runner.py`），其 checkpoint 即匯出到 `FPGA/.../runtime_weights/`。
+`runners/` 中 `v6` / `configC` 家族 = **寬版（wide）**；**deployed** 幾何以 `--adapter_kernel 1 --adapter_alpha scalar --adapter_mid_basis in` 訓練（見 `_b2_runner.py`），其 checkpoint 即匯出到 `FPGA/.../runtime_weights/`。
 
 ---
 
@@ -74,13 +74,13 @@ AI_model_train/
 | `run_xx_pretrain.py` | 預訓練 5 個 1W1A backbone | `backbones/` |
 | `run_xx_to_others.py` | 跨來源遷移：每個 backbone → 其餘 4 target，1-bit、M=1–4 + full-FT | `*_to_others/` |
 | `run_xx_to_others_bits.py` | 跨來源 bit-width sweep（1/2/4/8-bit） | `*_to_others_bits/` |
-| `run_v6.py` | accuracy-best（v6）設計，CIFAR→SVHN 基準 | `v6/` |
-| `run_v7_multi_rc.py` | 多 Adapter（M=1–4）× RC 開關消融 | `v7_multi_rc/` |
-| `run_v6_cross.py` / `run_v6_cross_m.py` | accuracy-best 跨資料集 M-sweep（M=4 / M=1–3） | `v_v6_cross{,_m}/` |
+| `run_v6.py` | 寬版（wide）（v6）設計，CIFAR→SVHN 基準 | `v6/` |
+| `run_v7_multi_rc.py` | 多分支 Adapter（M=1–4）× RC 開關消融 | `v7_multi_rc/` |
+| `run_v6_cross.py` / `run_v6_cross_m.py` | 寬版（wide） 跨資料集 M-sweep（M=4 / M=1–3） | `v_v6_cross{,_m}/` |
 | `run_v6_bit.py` | v6 × bit-width × M=4 | `v_v6_bit/` |
 | `run_configC_bits{,_rc}.py` | CIFAR→targets 位元掃描（no-RC / 含 RC） | `cifar10_configC_bits{,_rc}/` |
-| `run_configC_cross.py` | accuracy-best 1-bit 跨資料集 | `cifar10_configC_cross/` |
-| `run_configC_sw_multi.py` | 補齊軟體多 Adapter 表缺的 9 格 | `configC_sw_multi/` |
+| `run_configC_cross.py` | 寬版（wide） 1-bit 跨資料集 | `cifar10_configC_cross/` |
+| `run_configC_sw_multi.py` | 補齊軟體多分支 Adapter 表缺的 9 格 | `configC_sw_multi/` |
 | `run_v9.py` | v9 adapter 主實驗（single-seed headline） | `v9_cross_dataset/` |
 | `run_v9_ft.py` | full-FT 上界（1-bit） | `v9_ft_baseline/` |
 | `run_v9ft_cross_bit.py` | full-FT × bit-width（2–32 bit） | `v9ft_cross_bit/` |
@@ -90,11 +90,11 @@ AI_model_train/
 | `_dump_acc.py` | 工具：從 log 擷取 Final Best Accuracy | — |
 
 > **命名 ↔ 論文用語對照（重要）**：程式裡的內部代號與論文兩種幾何的對應如下——
-> - **`configC` / `v6` 家族 = accuracy-best 幾何**（kernel 3×3、mid='out'、α per-channel）→ 餵論文多 Adapter 表。
+> - **`configC` / `v6` 家族 = 寬版（wide）幾何**（kernel 3×3、mid='out'、α per-channel）→ 餵論文多分支 Adapter 表。
 > - **`v9` 家族 = deployed 幾何**（kernel 1×1、mid='in'、α scalar）→ 燒進 bitstream 的部署版。
-> - **`run_xx_to_others.py` 的 adapter 輸出是 mid='in'（早期版，已被 configC 取代，勿用於多 Adapter 表）**；
->   但其 `full_ft` 輸出為 Table 5.4 full-FT 欄之來源（採用）。跨來源多 Adapter 請用 `run_configC_cross.py`。
-> - 論文已不再使用「Configurations A–C」說法（改稱 accuracy-best / deployed）；舊代號 `configA`
+> - **`run_xx_to_others.py` 的 adapter 輸出是 mid='in'（早期版，已被 configC 取代，勿用於多分支 Adapter 表）**；
+>   但其 `full_ft` 輸出為 Table 5.4 full-FT 欄之來源（採用）。跨來源多分支 Adapter 請用 `run_configC_cross.py`。
+> - 論文已不再使用「Configurations A–C」說法（改稱 寬版（wide） / deployed）；舊代號 `configA`
 >   為更早的 v3 設計、**未進論文**，故未收錄於本 release。
 > 各結果資料夾 → 論文表 的完整對照見 [`results/README.md`](results/README.md)。
 

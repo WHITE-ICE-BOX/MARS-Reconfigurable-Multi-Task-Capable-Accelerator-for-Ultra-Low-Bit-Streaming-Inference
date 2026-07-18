@@ -1,36 +1,34 @@
-// ===========================================================================
-// [交接導向註解]
-// 模組：cfg_hub — MARS「runtime 多任務切換」核心（AXI-Lite configuration hub）
-// 流程：RTL 整合層。掛在 AXI-Lite（base 0x40010000），由 Zynq PS 寫入。
-// 做什麼：把每個任務(task)的參數 demux 到散落在 pipeline 各處的暫存器/RAM bank
-//         （MVAU0/FC1/FC2 thresholds、classifier 權重、5 層 adapter blob）。
-// 重點：換任務只寫此 hub（約 26KB），不重燒 bitstream、不需 reconfiguration controller。
-// 成本：僅 ~19 LUT。位址解碼：byte_addr[15:13]=unit select、[12:2]=word addr。
-// ===========================================================================
-
 `timescale 1ns / 1ps
 
 // =====================================================================
-// adapter_cfg_hub — AXI-Lite slave → 5 MVAU config write ports
+// adapter_cfg_hub — AXI-Lite slave → 8 unit config write ports
 // =====================================================================
 // Address space: 64 KB (16-bit byte address)
-//   [15:13] selects MVAU:
+//   [15:13] selects unit:
+//     000 = MVAU_hls_0 (0x0000-0x1FFF) — first conv layer thresholds
 //     001 = MVAU1 (0x2000-0x3FFF)
 //     010 = MVAU2 (0x4000-0x5FFF)
 //     011 = MVAU3 (0x6000-0x7FFF)
 //     100 = MVAU4 (0x8000-0x9FFF)
 //     101 = MVAU5 (0xA000-0xBFFF)
+//     110 = FC1/MVAU_hls_6 (0xC000-0xDFFF) — FC layer 1 thresholds
+//     111 = FC2/MVAU_hls_7 (0xE000-0xFFFF) — FC layer 2 thresholds
 //
-//   [12:2] = 11-bit word address within each MVAU (per-MVAU memory map)
+//   [12:2] = 11-bit word address within each unit
 //
-// Each MVAU's memory map:
+// MVAU1-5 memory map (unchanged):
 //   Word 0:              adapter_enable
-//   Word 4..67:          rom_rc[0..63]
-//   Word 128..639:       rom_down (entry*HIDDEN_CH + word)
-//   Word 640..1151:      rom_up   (entry*UP_WORDS + word)
 //   Word 1152..1407:     thresh_mem[0..255]
 //   Word 1408..1663:     sign_mem[0..255]
-//   Word 1664..1919:     contrib_lut[0..255]
+//
+// MVAU_hls_0 memory map (unit 0, low half, byte addr 0x0000-0x0FFF):
+//   Word 0..63:          thresh[ch], ch = step*16 + pe_idx
+//
+// Classifier memory map (unit 0, high half, byte addr 0x1000-0x1FFF):
+//   Word 0..1023:        classifier weight[i], 8-bit
+//
+// FC1/FC2 memory map (new):
+//   Word 0..511:         thresh[ch]
 // =====================================================================
 
 module adapter_cfg_hub #(
@@ -65,7 +63,7 @@ module adapter_cfg_hub #(
     output reg                                 S_AXI_RVALID,
     input  wire                                S_AXI_RREADY,
 
-    // Config output ports to 5 MVAUs
+    // Config output ports to 5 MVAUs (existing)
     output reg  [10:0]  mvau1_cfg_waddr,
     output reg  [31:0]  mvau1_cfg_wdata,
     output reg          mvau1_cfg_wen,
@@ -84,7 +82,27 @@ module adapter_cfg_hub #(
 
     output reg  [10:0]  mvau5_cfg_waddr,
     output reg  [31:0]  mvau5_cfg_wdata,
-    output reg          mvau5_cfg_wen
+    output reg          mvau5_cfg_wen,
+
+    // Config output port for MVAU_hls_0 (first conv layer)
+    output reg  [5:0]   mvau0_cfg_waddr,
+    output reg  [31:0]  mvau0_cfg_wdata,
+    output reg          mvau0_cfg_wen,
+
+    // Config output port for FC1 (MVAU_hls_6) — wdata widened to 32-bit for BD wiring; low 8 bits used
+    output reg  [8:0]   fc1_cfg_waddr,
+    output reg  [31:0]  fc1_cfg_wdata,
+    output reg          fc1_cfg_wen,
+
+    // Config output port for FC2 (MVAU_hls_7) — wdata widened to 32-bit for BD wiring; low 10 bits used
+    output reg  [8:0]   fc2_cfg_waddr,
+    output reg  [31:0]  fc2_cfg_wdata,
+    output reg          fc2_cfg_wen,
+
+    // Config output port for classifier (MVAU_hls_8 memstream weights)
+    output reg  [9:0]   cls_cfg_waddr,
+    output reg  [7:0]   cls_cfg_wdata,
+    output reg          cls_cfg_wen
 );
 
     // =========================================================
@@ -108,15 +126,21 @@ module adapter_cfg_hub #(
             mvau3_cfg_wen <= 1'b0;
             mvau4_cfg_wen <= 1'b0;
             mvau5_cfg_wen <= 1'b0;
+            mvau0_cfg_wen <= 1'b0;
+            fc1_cfg_wen   <= 1'b0;
+            fc2_cfg_wen   <= 1'b0;
+            cls_cfg_wen   <= 1'b0;
         end else begin
-            // 預設每拍把 5 個 write-enable 拉低；下方 case 命中時才拉高一拍
-            // → 形成「單拍寫入脈衝」，一次寫一個 word 到對應 MVAU 的 cfg RAM。
             // Default: deassert write enables after one cycle
             mvau1_cfg_wen <= 1'b0;
             mvau2_cfg_wen <= 1'b0;
             mvau3_cfg_wen <= 1'b0;
             mvau4_cfg_wen <= 1'b0;
             mvau5_cfg_wen <= 1'b0;
+            mvau0_cfg_wen <= 1'b0;
+            fc1_cfg_wen   <= 1'b0;
+            fc2_cfg_wen   <= 1'b0;
+            cls_cfg_wen   <= 1'b0;
 
             // AW channel
             if (S_AXI_AWVALID && !aw_done && !S_AXI_BVALID) begin
@@ -140,12 +164,21 @@ module adapter_cfg_hub #(
                 S_AXI_BVALID <= 1'b1;
                 S_AXI_BRESP  <= 2'b00;  // OKAY
 
-                // ── 核心 demux ──
-                // 用位址 [15:13] 判斷這筆寫入屬於哪一個 MVAU（1~5），
-                // 把 word address([12:2]) 與資料轉發到該 MVAU 的 cfg 寫入埠。
-                // PS 端只要照各 MVAU 的 memory map 依序寫，即完成一次「換任務」。
-                // Decode MVAU select and dispatch
+                // Decode unit select and dispatch
                 case (aw_addr_latched[15:13])
+                    3'd0: begin  // Unit 0: split by bit[12]
+                        if (!aw_addr_latched[12]) begin
+                            // Low half: MVAU_hls_0 thresholds (word 0-63)
+                            mvau0_cfg_waddr <= aw_addr_latched[7:2];
+                            mvau0_cfg_wdata <= S_AXI_WDATA;
+                            mvau0_cfg_wen   <= 1'b1;
+                        end else begin
+                            // High half: Classifier weights (word 0-1023)
+                            cls_cfg_waddr   <= aw_addr_latched[11:2];
+                            cls_cfg_wdata   <= S_AXI_WDATA[7:0];
+                            cls_cfg_wen     <= 1'b1;
+                        end
+                    end
                     3'd1: begin
                         mvau1_cfg_waddr <= aw_addr_latched[12:2];
                         mvau1_cfg_wdata <= S_AXI_WDATA;
@@ -171,7 +204,16 @@ module adapter_cfg_hub #(
                         mvau5_cfg_wdata <= S_AXI_WDATA;
                         mvau5_cfg_wen   <= 1'b1;
                     end
-                    default: ; // ignore writes to reserved addresses
+                    3'd6: begin  // FC1: word addr [8:0] → 512 thresholds (low 8 bits used)
+                        fc1_cfg_waddr   <= aw_addr_latched[10:2];
+                        fc1_cfg_wdata   <= S_AXI_WDATA;
+                        fc1_cfg_wen     <= 1'b1;
+                    end
+                    3'd7: begin  // FC2: word addr [8:0] → 512 thresholds (low 10 bits used)
+                        fc2_cfg_waddr   <= aw_addr_latched[10:2];
+                        fc2_cfg_wdata   <= S_AXI_WDATA;
+                        fc2_cfg_wen     <= 1'b1;
+                    end
                 endcase
 
                 aw_done <= 1'b0;

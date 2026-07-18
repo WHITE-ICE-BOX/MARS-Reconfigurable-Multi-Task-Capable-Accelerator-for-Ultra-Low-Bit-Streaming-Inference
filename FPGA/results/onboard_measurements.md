@@ -29,16 +29,16 @@ stdout，未存檔；此處彙整論文回報之**實測數值**，並附各 bui
 
 ## 二、Runtime 切換延遲
 
-- **1.86 ± 0.04 ms**（50 次切換平均），每次寫 6,757 個 cfg word；blob 實體 25,088 bytes（≈25 KB；classifier 權重為 byte-packed，故非 6,757×4）。
-- 無 fabric reconfiguration、無 reconfiguration controller。
+- **1.86 ± 0.04 ms**（50 次切換平均），每次寫 6,757 個 32-bit cfg word＝27,028 bus bytes（sub-word 欄位如 byte-packed classifier 權重於 cfg bus 上擴為完整字）；blob 儲存 25,088 bytes（≈25 KB）。切換後推論正確性另行以全測試集驗證。
+- 無 fabric reconfiguration、無 fabric-reconfiguration controller。
 - 量測腳本：`MARS_compact_5ds_pe1/board_switch_fast_bench.py`。
 
 ## 三、吞吐量 / 延遲 / 能效
 
-| 指標 | MARS throughput (2ds, high-PE) | Backbone throughput | MARS compact (PE=1) |
+| 指標 | MARS throughput (2-task, 異質 PE) | Backbone throughput | MARS compactness (PE=1) |
 |---|---|---|---|
 | 端到端吞吐量 | 1,866 img/s | 1,859 img/s | ~107 img/s |
-| 單張延遲 | 0.54 ms | — | — |
+| 攤提每張時間（batch 1000） | 0.54 ms | — | — |
 | 晶片功耗 | 2.214 W | — | 1.802 W |
 | 能效 | 842.7 img/s/W | 879.4 img/s/W | 59.4 img/s/W |
 

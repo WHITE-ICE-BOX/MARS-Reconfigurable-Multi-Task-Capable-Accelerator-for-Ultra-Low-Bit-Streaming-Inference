@@ -87,7 +87,7 @@ stl10、cinic10）的 per-task 參數，每組 34 個 `.bin`。換任務時 `run
 sudo XILINX_XRT=/usr BOARD=Pynq-Z2 python3 driver.py \
      --exec_mode throughput_test --bitfile resizer_v1.bit --batchsize 1000
 
-# 5 資料集精度 + runtime 切換（compact build）
+# 5 資料集精度 + runtime 切換（compactness build）
 sudo XILINX_XRT=/usr BOARD=Pynq-Z2 python3 runtime_3ds.py     # 載入 runtime_weights/<dataset>
 sudo XILINX_XRT=/usr BOARD=Pynq-Z2 python3 board_test_10k.py  # 各資料集 10k 精度
 ```
