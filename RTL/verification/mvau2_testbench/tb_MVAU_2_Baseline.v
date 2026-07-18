@@ -68,22 +68,22 @@ module tb_MVAU_2_Baseline;
     reg [9:0] thresh_rom_14 [0:7]; reg [9:0] thresh_rom_15 [0:7];
     
     initial begin
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_0_ROM_AUTO_1R.dat", thresh_rom_0);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_1_ROM_AUTO_1R.dat", thresh_rom_1);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_2_ROM_AUTO_1R.dat", thresh_rom_2);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_3_ROM_AUTO_1R.dat", thresh_rom_3);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_4_ROM_AUTO_1R.dat", thresh_rom_4);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_5_ROM_AUTO_1R.dat", thresh_rom_5);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_6_ROM_AUTO_1R.dat", thresh_rom_6);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_7_ROM_AUTO_1R.dat", thresh_rom_7);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_8_ROM_AUTO_1R.dat", thresh_rom_8);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_9_ROM_AUTO_1R.dat", thresh_rom_9);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_10_ROM_AUTO_1R.dat", thresh_rom_10);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_11_ROM_AUTO_1R.dat", thresh_rom_11);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_12_ROM_AUTO_1R.dat", thresh_rom_12);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_13_ROM_AUTO_1R.dat", thresh_rom_13);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_14_ROM_AUTO_1R.dat", thresh_rom_14);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_15_ROM_AUTO_1R.dat", thresh_rom_15);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_0_ROM_AUTO_1R.dat", thresh_rom_0);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_1_ROM_AUTO_1R.dat", thresh_rom_1);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_2_ROM_AUTO_1R.dat", thresh_rom_2);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_3_ROM_AUTO_1R.dat", thresh_rom_3);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_4_ROM_AUTO_1R.dat", thresh_rom_4);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_5_ROM_AUTO_1R.dat", thresh_rom_5);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_6_ROM_AUTO_1R.dat", thresh_rom_6);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_7_ROM_AUTO_1R.dat", thresh_rom_7);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_8_ROM_AUTO_1R.dat", thresh_rom_8);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_9_ROM_AUTO_1R.dat", thresh_rom_9);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_10_ROM_AUTO_1R.dat", thresh_rom_10);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_11_ROM_AUTO_1R.dat", thresh_rom_11);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_12_ROM_AUTO_1R.dat", thresh_rom_12);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_13_ROM_AUTO_1R.dat", thresh_rom_13);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_14_ROM_AUTO_1R.dat", thresh_rom_14);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_2_Matrix_Vector_Activate_Stream_Batch_p_ZL7threshs_15_ROM_AUTO_1R.dat", thresh_rom_15);
     end
 
     wire [2:0] step = out_ptr % 8; 
@@ -102,8 +102,8 @@ module tb_MVAU_2_Baseline;
         for (in_ptr = 0; in_ptr < MAX_IN_WORDS; in_ptr = in_ptr + 1) golden_in[in_ptr] = 32'hx;
         for (out_ptr = 0; out_ptr < MAX_OUT_WORDS; out_ptr = out_ptr + 1) golden_out[out_ptr] = 16'hx;
 
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/golden_data/mvau2_baseline_in.dat", golden_in);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/golden_data/mvau2_baseline_expected.dat", golden_out);
+        $readmemh("golden_data/mvau2_baseline_in.dat", golden_in);
+        $readmemh("golden_data/mvau2_baseline_expected.dat", golden_out);
         
         in_ptr = 0;
         out_ptr = 0;

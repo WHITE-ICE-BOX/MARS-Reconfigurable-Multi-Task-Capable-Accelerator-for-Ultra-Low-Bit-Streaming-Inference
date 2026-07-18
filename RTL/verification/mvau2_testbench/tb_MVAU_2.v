@@ -142,8 +142,8 @@ module tb_MVAU_2;
         for (out_ptr = 0; out_ptr < MAX_OUT_WORDS; out_ptr = out_ptr + 1) golden_out[out_ptr] = 16'hx;
 
         // ✨ 路徑換成 mvau2 (pw1)
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/golden_data/mvau2_in.dat", golden_in);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau2/golden_data/mvau2_expected.dat", golden_out);
+        $readmemh("golden_data/mvau2_in.dat", golden_in);
+        $readmemh("golden_data/mvau2_expected.dat", golden_out);
         
         in_ptr = 0; out_ptr = 0;
 

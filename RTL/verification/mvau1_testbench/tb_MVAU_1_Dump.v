@@ -91,8 +91,8 @@ module tb_MVAU_1_Dump;
 
     initial begin
         for (in_ptr = 0; in_ptr < MAX_IN_WORDS; in_ptr = in_ptr + 1) golden_in[in_ptr] = 32'hx;
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau1/golden_data/mvau1_in.dat", golden_in);
-        dump_file = $fopen("/home/barkie1/mvau_pipeline/mvau_adapter/mvau1/golden_data/mvau1_adapter_hw_dump.dat", "w");
+        $readmemh("golden_data/mvau1_in.dat", golden_in);
+        dump_file = $fopen("golden_data/mvau1_adapter_hw_dump.dat", "w");
         in_ptr = 0;
 
         ap_rst_n = 0; tb_in_tvalid = 0; tb_in_tdata = 0; tb_out_tready = 1;

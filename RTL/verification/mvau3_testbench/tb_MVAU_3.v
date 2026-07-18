@@ -139,8 +139,8 @@ module tb_MVAU_3;
         for (in_ptr = 0; in_ptr < MAX_IN_WORDS; in_ptr = in_ptr + 1) golden_in[in_ptr] = 32'hx;
         for (out_ptr = 0; out_ptr < MAX_OUT_WORDS; out_ptr = out_ptr + 1) golden_out[out_ptr] = 16'hx;
 
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau3/golden_data/mvau3_in.dat", golden_in);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau3/golden_data/mvau3_expected.dat", golden_out);
+        $readmemh("golden_data/mvau3_in.dat", golden_in);
+        $readmemh("golden_data/mvau3_expected.dat", golden_out);
         
         in_ptr = 0; out_ptr = 0;
 

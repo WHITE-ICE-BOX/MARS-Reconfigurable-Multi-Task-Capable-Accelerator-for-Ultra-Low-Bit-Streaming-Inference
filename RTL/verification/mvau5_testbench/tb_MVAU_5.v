@@ -150,8 +150,8 @@ module tb_MVAU_5;
     integer cor_cnt = 0;
 
     initial begin
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau5/golden_data/mvau5_in.dat", golden_in);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau5/golden_data/mvau5_expected.dat", golden_out);
+        $readmemh("golden_data/mvau5_in.dat", golden_in);
+        $readmemh("golden_data/mvau5_expected.dat", golden_out);
 
         ap_rst_n      = 0;
         tb_in_tvalid  = 0;

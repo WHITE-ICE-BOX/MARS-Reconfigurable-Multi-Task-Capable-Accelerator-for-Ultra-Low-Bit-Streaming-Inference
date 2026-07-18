@@ -114,11 +114,11 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 |---|---|---|---|
 | Table 3.1 / 3.2 | 位元寬度掃描（單分支 ±RC vs Full-FT；跨來源） | `AI_model_train/runners/run_configC_bits_rc.py`、`run_xx_to_others_bits.py` | `AI_model_train/results/*_configC_bits_rc/`、`*_to_others_bits/` |
 | Table 3.3 / 3.4、式 3.13 | Adapter/backbone 幾何與 MACs（解析計算） | `AI_model_train/src/models_bitwidth/CNV_param.py`（幾何定義） | — |
-| Table 5.2 | 資料集總覽 | `AI_model_train/src/bnn_pynq_train_bitwidth.py`（loader） | — |
+| Table 5.1 | 資料集總覽 | `AI_model_train/src/bnn_pynq_train_bitwidth.py`（loader） | — |
 | Table 5.3 / 5.4 | 寬版幾何多分支掃描（CIFAR 來源＋跨來源） | `runners/run_v6.py`、`run_v6_cross.py`、`run_configC_cross.py` | `results/configC_sw_multi/`、`*_configC_cross/` |
 | Table 5.5 | Full-FT vs MARS M4（n=5 seed） | `runners/table56_5seed.py` | `results/table56_5seed/table56.csv` |
 | Table 5.6＋§5.2.5 | M=1 vs M=4 五-seed 配對檢定＋last-epoch 交叉檢核 | `runners/_b2_a6_runner.py`、`Figures_Analysis/parse_lastepoch_b2.py` | `results/b2_significance/results.csv` |
-| Table 5.8–5.10 | RC 消融（寬版/部署幾何、跨目標） | `runners/run_configA_bits_rc.py`、`run_v9.py` | `results/*_configA_bits_rc/`、`v9_cross_dataset/` |
+| Table 5.8 | 寬版 vs 部署幾何 20 對比較 / Table 5.9–5.10 RC 消融（跨目標） | `runners/run_configA_bits_rc.py`、`run_v9.py` | `results/*_configA_bits_rc/`、`v9_cross_dataset/` |
 | Table 5.7 / 5.18 | 部署幾何 20 組 backbone→target 掃描 | `runners/run_configA_cross.py`（＋`run_v9.py` CIFAR 來源） | `results/{svhn,stl10,fashionmnist,cinic10}_configA_cross/`、`v9_cross_dataset/` |
 | §5.3.4 來源相依驗證 | FMNIST→SVHN 獨立重跑/seed2025 | `runners/fmnist_dep_verify.py`、`fmnist_s2025.py`、`fmnist_svhn200.py`、`fmnist_verify.py` | `results/fashionmnist_configA_verify/`、`fashionmnist_configC_SVHN_*/` |
 | Table 5.12 / 5.13 / 5.14 | 四 build 資源/功耗/PE 折疊（post-implementation） | `SoC/`＋`FPGA/*/`（Vivado 工程重建腳本） | `FPGA/results/`（utilization/power 報告） |
@@ -145,7 +145,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 | Vivado | 2022.2（所有資源/功耗/時序報告之工具版本） |
 | 板端 | PYNQ-Z2 原廠 image（Python + `pynq` overlay API） |
 
-路徑約定:訓練類腳本以環境變數 **`MARS_TRAIN_ROOT`** 指到訓練工作目錄（含 `paper_results_bitwidth/`、`pretrained_backbones/`）;Vivado `.tcl` 以 **`MARS_RTL_ROOT`／`MARS_ROOT`** 指到本 repo 對應資料夾。原始實驗跑在兩台 GPU 主機與本地 Vivado 機上,腳本內不再含任何機器特定絕對路徑。
+路徑約定:訓練類腳本以環境變數 **`MARS_TRAIN_ROOT`** 指到訓練工作目錄（含 `paper_results_bitwidth/`、`pretrained_backbones/`）;Vivado `.tcl` 以 **`MARS_RTL_ROOT`／`MARS_ROOT`** 指到本 repo 對應資料夾。原始實驗跑在兩台 GPU 主機與本地 Vivado 機上,訓練/繪圖/分析類腳本已移除機器特定絕對路徑;**惟部分硬體重建仍需原 FINN 產生之 build tree（見 §十一 已知未竟項）**。
 
 ### 9.2 資料集與 checkpoint
 - CIFAR-10 / SVHN / STL10 / FashionMNIST 由 torchvision **自動下載**;CINIC10 由 `bnn_pynq_train_bitwidth.py` 內建下載程序取得（官方 train/test 各 90k,valid 未用）。
@@ -187,3 +187,26 @@ MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、Py
 
 若使用本專案，請引用碩士論文：
 > Po-Chun Huang, "MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference," Master's Thesis, National Chung Cheng University, 2026.
+
+---
+
+## 十一、已知未竟項與不可重現項（交接誠實聲明）
+
+本 release 足以理解 MARS 架構、重跑軟體實驗、驗證 RTL 模組與板上部署;但以「乾淨 clone 完整重現論文每一個數字」為標準,下列項目**尚未達成或依賴已遺失/未隨附之原始資料**,交接者須知悉:
+
+**已修復（本次）**
+- RTL golden vectors:五模組 `.dat` 已補入 `RTL/verification/mvau*_testbench/golden_data/`,expected 向量合計 **43,520**（`manifest.csv`);testbench 路徑改相對。
+- FPGA report 錯置:`MARS_throughput_2ds/` 先前三份 routed report 為 backbone 之誤植副本,已移除並以 `REPORT_MISSING.md` 標明;`FPGA/results/SHA256SUMS.txt` 提供現存 report 之 checksum。
+
+**依賴原始工程/已退役主機,未隨附**
+- **MARS throughput routed report**（41,729 LUT / 2.215 W）:原 Vivado 工程未保存,需重跑 implementation 產生。
+- **GPU/Jetson 跨平台原始 timing/power log**（Table 5.19/5.20）:量測於已退役之 RTX 4090 主機,腳本與 raw log 未取回;量測協定見論文 §5.5。
+- **板上逐次原始 log**（Table 5.23 之 10 次準確率、50 次切換）:當時未保存 stdout,`FPGA/results/onboard_measurements.md` 僅存統計摘要;量測腳本在 repo,可於 PYNQ-Z2 重生。
+- **五任務 deployment checkpoint 與圖 5.2 probe checkpoint**:`gen_3ds_cfg.py`／`rc_probe_fig5_2.py` 需之;成品 payload（`runtime_weights/`,每任務 25,088 B）與 probe 輸出 JSON（`Figures_Analysis/rc_probe_out.json`）已在 repo,但從 checkpoint 重生之鏈需原 checkpoint。
+
+**證據邊界**（與 §十 一致）
+- M=2–4 僅 RTL 模擬＋合成後估計,未 place-and-route、未上板。
+- 準確率為 test 集 best-epoch 操作點;`Figures_Analysis/parse_lastepoch_b2.py` 需原逐 epoch log（未隨附,約 6.4 GB）方能重算 last-epoch 交叉檢核之絕對值,配對增益結論不受影響。
+- 部分歷史 sweep CSV 含失敗 run 列（`acc=0.0, returncode=1`,如 `cifar10_configC_cross`）;論文數據以成功列為準,失敗列保留供 provenance,不代表論文值。
+
+> 因此本 README 不宣稱「完整可重現」,而是「主要原始碼與實驗資產已交接,軟體實驗與 RTL 模組可於本 repo 驗證,部分硬體量測需原始工程或原量測環境」。

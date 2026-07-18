@@ -158,8 +158,8 @@ module tb_MVAU_4;
 
     initial begin
         // 請確保路徑正確
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau4/golden_data/mvau4_in.dat", golden_in);
-        $readmemh("/home/barkie1/mvau_pipeline/mvau_adapter/mvau4/golden_data/mvau4_expected.dat", golden_out);
+        $readmemh("golden_data/mvau4_in.dat", golden_in);
+        $readmemh("golden_data/mvau4_expected.dat", golden_out);
 
         ap_rst_n      = 0;
         tb_in_tvalid  = 0;

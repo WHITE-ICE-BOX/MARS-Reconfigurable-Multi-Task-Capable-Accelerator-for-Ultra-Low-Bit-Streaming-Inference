@@ -1,0 +1,7 @@
+layer,testbench,golden_in,golden_out,vector_count,note
+MVAU1,mvau1_testbench/tb_MVAU_1.v,golden_data/mvau1_in.dat,golden_data/mvau1_expected.dat,15680,adapter-fused per-channel outputs
+MVAU2,mvau2_testbench/tb_MVAU_2.v,golden_data/mvau2_in.dat,golden_data/mvau2_expected.dat,11520,
+MVAU3,mvau3_testbench/tb_MVAU_3.v,golden_data/mvau3_in.dat,golden_data/mvau3_expected.dat,8000,
+MVAU4,mvau4_testbench/tb_MVAU_4.v,golden_data/mvau4_in.dat,golden_data/mvau4_expected.dat,5760,
+MVAU5,mvau5_testbench/tb_MVAU_5.v,golden_data/mvau5_in.dat,golden_data/mvau5_expected.dat,2560,
+# 五模組 expected 向量合計 = 43,520(與論文 §4.7/Table 4.3 一致)。golden 由硬體佈局權重映像產生(export_testbench_data.py),非自軟體張量重算,以消除表示法不一致假錯。

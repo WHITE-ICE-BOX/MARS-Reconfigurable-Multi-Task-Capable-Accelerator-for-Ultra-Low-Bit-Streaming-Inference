@@ -73,7 +73,7 @@ module tb_MVAU_5_Baseline;
     // ==========================================
     reg [10:0] thresh_rom [0:255];
     initial begin
-        $readmemh("/home/barkie1/mvau_pipeline/sw/hardware_assets_pe_simd_aligned_new/StreamingDataflowPartition_1_MVAU_hls_5_Matrix_Vector_Activate_Stream_Batch_threshs_ROM_AUTO_1R.dat", thresh_rom);
+        $readmemh("golden_data/StreamingDataflowPartition_1_MVAU_hls_5_Matrix_Vector_Activate_Stream_Batch_threshs_ROM_AUTO_1R.dat", thresh_rom);
     end
 
     // 追蹤當前的 Channel (從 0 到 255 循環)
@@ -95,8 +95,8 @@ module tb_MVAU_5_Baseline;
 
     initial begin
         // 讀取檔案
-        $readmemh("/home/barkie1/mvau_pipeline/sw/golden_model/mvau5_baseline_in.dat", golden_in);
-        $readmemh("/home/barkie1/mvau_pipeline/sw/golden_model/mvau5_baseline_expected.dat", golden_out);
+        $readmemh("golden_data/mvau5_baseline_in.dat", golden_in);
+        $readmemh("golden_data/mvau5_baseline_expected.dat", golden_out);
         
         ap_rst_n = 0;
         in0_V_TVALID = 0;
