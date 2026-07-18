@@ -37,7 +37,7 @@ AI_model_train/
 │
 ├── backbones/                          # ── 預訓練 backbone（PyTorch checkpoint .tar）──
 │   ├── cifar10_1w1a.tar  svhn_1w1a.tar  stl10_1w1a.tar  fashionmnist_1w1a.tar  cinic10_1w1a.tar
-│   └── *_{2w2a,4w4a,8w8a,16w16a,32w32a}.tar   # 供 bit-width sweep 表使用（共 24 個）
+│   └── *_{2w2a,4w4a,8w8a}.tar          # 供 bit-width sweep 表使用（1/2/4/8-bit,共 20 個）
 │
 └── results/                            # ── 結果數據（只放 results.csv，不放 6.4GB 原始 log）──
     ├── final_accuracy_summary.txt      #   全實驗 Final Best Accuracy 彙整
