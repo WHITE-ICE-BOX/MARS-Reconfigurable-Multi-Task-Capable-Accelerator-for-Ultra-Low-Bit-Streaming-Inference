@@ -4,6 +4,13 @@
 **streamline → 轉硬體層 → 折疊（folding）→ dataflow 合成**，產出每個 MVAU 的 memblock 與
 **StreamingDataflowPartition IP**，作為 `RTL/` 整合 Adapter 的輸入。
 
+> **FINN 本體未做任何修改**：使用官方 **FINN v0.9 Docker 原樣**。唯一客製在**最前端**——
+> 載入的模型（`model/CNV.py` 自訓 1W1A 檢查點）與輸入前處理；其後 streamline、轉硬體層、
+> 折疊、`ZynqBuild` **全部是官方轉換、與官方 `cnv_end2end_example` 相同**。本夾各 notebook
+> 皆為該官方範例之衍生（僅前端載入不同、或折疊參數不同），並非多套流程。
+> FINN **產出之 RTL** 的最小手動補丁（暴露 partial sum，`RTL/gen_scripts/patch_finn_ips.py`）
+> 施加於產生碼快照上、在 FINN 之外進行——不修改 FINN 套件本身。
+
 > **MVAU** = Matrix-Vector-Activation Unit（FINN 的卷積/全連接運算單元）。
 > **folding / PE** = 平行折疊度；PE 越大越快、面積越大。throughput build 用異質高 PE，compact build 用 PE=1。
 

@@ -141,7 +141,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 | OS | Ubuntu 20.04/22.04（訓練與合成皆於 Linux 驗證） |
 | Python | 3.8（訓練環境;`pip install -r requirements.txt`） |
 | PyTorch / Brevitas | 2.4.1 / 0.12.0 |
-| FINN | v0.9（官方 Docker;`bash run-docker.sh`） |
+| FINN | v0.9（官方 Docker **原樣、未修改**;客製僅在前端輸入模型,見 `FINN_Compile/README.md`） |
 | Vivado | 2022.2（所有資源/功耗/時序報告之工具版本） |
 | 板端 | PYNQ-Z2 原廠 image（Python + `pynq` overlay API） |
 
