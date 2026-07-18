@@ -34,7 +34,6 @@ AI_model_train/
 │   ├── run_configC_bits.py  run_configC_bits_rc.py  run_configC_cross.py  run_configC_sw_multi.py
 │   ├── run_v9.py  run_v9_ft.py  run_v9ft_cross_bit.py
 │   ├── run_v3_compare.py
-│   ├── run_seed.py  _b2_runner.py  _dump_acc.py
 │
 ├── backbones/                          # ── 預訓練 backbone（PyTorch checkpoint .tar）──
 │   ├── cifar10_1w1a.tar  svhn_1w1a.tar  stl10_1w1a.tar  fashionmnist_1w1a.tar  cinic10_1w1a.tar
@@ -63,7 +62,6 @@ AI_model_train/
 | **寬版（wide）** | 3×3 | $C_{\text{out}}/4$（mid='out'） | per-channel | 軟體準確率上界 |
 | **deployed** | 1×1 | $C_{\text{in}}/4$（mid='in'） | scalar | FPGA 部署版（省資源），燒進 bitstream 的組態 |
 
-`runners/` 中 `v6` / `configC` 家族 = **寬版（wide）**；**deployed** 幾何以 `--adapter_kernel 1 --adapter_alpha scalar --adapter_mid_basis in` 訓練（見 `_b2_runner.py`），其 checkpoint 即匯出到 `FPGA/.../runtime_weights/`。
 
 ---
 
@@ -86,7 +84,6 @@ AI_model_train/
 | `run_v9ft_cross_bit.py` | full-FT × bit-width（2–32 bit） | `v9ft_cross_bit/` |
 | `run_v3_compare.py` | 3×3 vs 1×1 down-conv 單軸消融（50ep、no-RC） | `v3_compare*/` |
 | `run_seed.py` | n=3 multi-seed | `v_seed/` |
-| `_b2_runner.py` | n=5 paired t-test（deployed，SVHN/Fashion × M1/M4） | `b2_significance/` |
 | `_dump_acc.py` | 工具：從 log 擷取 Final Best Accuracy | — |
 
 > **命名 ↔ 論文用語對照（重要）**：程式裡的內部代號與論文兩種幾何的對應如下——

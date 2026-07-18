@@ -55,7 +55,7 @@
 | `fashionmnist_configA_verify/`、`fashionmnist_configC_SVHN_{200ep,verify}/` | §5.3.4 | FMNIST→SVHN 幾何反轉之獨立重跑／seed2025／50ep 驗證（舊 45.68 重複值＝best-epoch 峰值碰撞，論文 Table 5.4 † 註） |
 | `cinic10_configC_{cross,bits_rc}/` | Table 5.4、3.2 | CINIC10 來源寬版掃描與位元掃描 |
 
-注:`*_configC_cross2` 為 2-bit 紅鯡魚批次（BIT=2），非論文數據，保留僅供稽核。
+注:2-bit 紅鯡魚批次（`*_configC_cross2`,BIT=2）為非論文數據,**未收錄**於本 release。
 
 ## 溯源(provenance)
 

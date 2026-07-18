@@ -24,13 +24,11 @@ FINN_Compile/
 │   ├── pe1_cnv_end2end.ipynb        #  ★ 最終 compact(PE=1) 硬體的 backbone end2end（5資料集 build 用）
 │   ├── pe1_adapter.ipynb            #  ★ 最終 compact(PE=1) 的 adapter 側 end2end
 │   ├── cnv_end2end_example.ipynb    #    high-PE（throughput build）的 backbone end2end
-│   ├── adapter.ipynb                #    high-PE 的 adapter 側 end2end
-│   └── backbone_cifar.ipynb         #    (歷程)broken legacy,未用於部署;見第二節
+│   └── adapter.ipynb                #    high-PE 的 adapter 側 end2end
 ├── model/                           # ── FINN 的輸入模型 ──
 │   ├── CNV.py                       #    Brevitas CNV 定義（匯出成 ONNX 的來源）
 │   └── cnv_6layer_fc3_cifar_w1a1.zip#    訓練好的 CIFAR-10 1W1A 模型（end2end 載入這個）
 ├── scripts/                         # ── 輔助腳本 ──
-│   ├── pe1_refold_from_v1.py        #    (歷程)早期獨立 refold 嘗試,未用於部署;見第二節
 │   ├── verify_finn_stages.py        #    驗證 FINN 各階段 ONNX 輸出正確性
 │   ├── verify_cifar1w1a.py          #    CIFAR-10 1W1A 端到端正確性檢查
 │   ├── validate_custom.py           #    自訂資料集驗證
@@ -55,9 +53,7 @@ FINN_Compile/
 | backbone, compactness (PE=1) | `pe1_cnv_end2end.ipynb` | 均勻 PE=1 | = 官方範例之複製,**僅折疊表改全 PE=1**（載入同一 `dataflow_model.onnx` 重折疊）;以 `jupyter nbconvert --execute` 無頭執行 |
 | **MARS, compactness, N-task** | `pe1_adapter.ipynb` | 均勻 PE=1 | = `adapter.ipynb` 之 PE=1 對應版（22 格中 20 格相同,僅折疊不同） |
 
-**未用於部署（保留為歷程紀錄）：**
-- `backbone_cifar.ipynb` — 早期嘗試,**broken legacy**;正確流程為 `cnv_end2end_example.ipynb`（部署專案工作紀錄明載）。
-- `scripts/pe1_refold_from_v1.py` — 早期獨立 refold 嘗試（取 throughput 已驗證 model 直接重折疊 PE=1）;同樣的 PE=1 折疊最終改在 `pe1_cnv_end2end.ipynb` 的折疊 cell 內完成,此腳本未走到部署。
+> 本夾**只保留實際產出上板 bitstream 的四本 notebook**。早期未用於部署的檔案（`backbone_cifar.ipynb` broken legacy、`pe1_refold_from_v1.py` 早期 refold 嘗試）已移除,避免誤導;PE=1 折疊實際在 `pe1_cnv_end2end.ipynb` 的折疊 cell 內完成。
 
 ---
 
