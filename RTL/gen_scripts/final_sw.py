@@ -1,3 +1,4 @@
+import os
 # ===========================================================================
 # [交接導向註解]
 # 腳本：★ 主匯出器：載入 PyTorch checkpoint(RC_m1_full.tar) → 產生全部硬體 .dat assets
@@ -26,7 +27,7 @@ MVAU_CONFIGS = [
     (1, 1)     # mvau8 (FC2)
 ]
 
-CHECKPOINT_PATH = "RC_m1_full.tar"
+CHECKPOINT_PATH = os.environ.get("MARS_CKPT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "RC_m1_full.tar"))
 OUTPUT_DIR = "hardware_assets_pe_simd_aligned_new"
 
 def pack_bits_to_hex(bits_array, bits_per_word):

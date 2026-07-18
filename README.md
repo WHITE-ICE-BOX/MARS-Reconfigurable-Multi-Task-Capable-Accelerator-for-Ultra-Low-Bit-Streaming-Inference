@@ -153,13 +153,14 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 
 ### 9.3 最小軟體實驗（單筆遷移,約 30 分鐘 GPU）
 ```bash
+pip install -r requirements.txt   # 首次:裝 torch/brevitas 等(見 §9.1)
 cd AI_model_train/src
 python bnn_pynq_train_bitwidth.py --mode adapter --net_bit 1 --dataset SVHN   --finetune_checkpoint ../backbones/cifar10_1w1a.tar   --epochs 200 --lr 0.005 --scheduler STEP --milestones 100,150 --batch_size 100   --random_seed 2024 --num_branches 1 --adapter_bit_width 1   --adapter_kernel 1 --adapter_act signed --adapter_alpha scalar   --adapter_mid_basis in --no_rc --adapter_bias
 ```
 即部署幾何 M=1+RC 之 CIFAR-10→SVHN（對應 Table 5.18 第一列;best-epoch test 選點,規則見 `AI_model_train/`）。
 
 ### 9.4 硬體重現路徑
-1. **adapter `.dat` / configuration blob**:`RTL/gen_scripts/prepack_adapter_dat.py`、`make_adp_contrib_luts.py`;五任務 blob 成品在 `FPGA/MARS_compact_5ds_pe1/runtime_weights/{cifar10,svhn,fashion,stl10,cinic10}/`,重生程序見 `FPGA/README.md`。
+1. **adapter `.dat` / configuration blob**:**打包成品已在 repo**（`RTL/hardware_assets/` 97 個 `.dat`、`FPGA/.../runtime_weights/` 五任務 blob）,可直接用於模擬與部署。若要從 FINN 匯出之中間 `.dat` 重生:`RTL/gen_scripts/{prepack_adapter_dat,make_adp_contrib_luts,generate_mvau1234_golden}.py`,以環境變數 `MARS_DAT_SRC` 指中間 `.dat` 目錄（golden checkpoint `RC_m1_full.tar` 已隨附於 `gen_scripts/`）。
 2. **RTL 模擬**:`RTL/verification/mvau{1..5}_testbench/`（五模組合計 43,520 向量;golden 由 `export_testbench_data.py` 自硬體佈局權重映像產生）;頂層模擬資產於 `RTL/verification/top_sim/`（`run_sim_top_*.tcl`、輸入 hex、baseline sim log）。
 3. **Vivado 專案重建**:`RTL/tcl/make_project.tcl` → `package_ips.tcl` → `SoC/` block design → `RTL/tcl/build_bitstream.tcl`（OOC cache 注意事項見 `RTL/README.md`）。FINN 產生碼上的最小手動補丁由 `RTL/gen_scripts/patch_finn_ips.py` 自動施加（免 GUI）。
 4. **PYNQ-Z2 部署**:把 `FPGA/<build>/` 整夾放上板,依 `FPGA/README.md` 執行 `board_test_10k.py`（吞吐/精度）與 `board_test_v3force.py`（五任務精度+切換延遲,`sw.switch()` 逐次量測）。
@@ -202,17 +203,6 @@ python bnn_pynq_train_bitwidth.py --mode adapter --net_bit 1 --dataset SVHN   --
 - **Vivado 報告存檔**（`Synth_Sweep/results_archive/`、`FPGA/results/`）保留原建置機路徑字串,屬工具輸出原樣存證。
 - 正式論文數據 vs 中間產物之區分見 `AI_model_train/results/README.md`（含探索批次註記）。
 
-## 授權
-
-MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、PyTorch、FINN 產生之 RTL）保留其原始授權。
-
-## 引用
-
-若使用本專案，請引用碩士論文：
-> Po-Chun Huang, "MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference," Master's Thesis, National Chung Cheng University, 2026.
-
----
-
 ## 十一、大型建置產物的產生方式
 
 本 release 收錄**重現論文所需的全部程式碼、環境版本與逐步驟指南**。以下大型建置產物（依其性質由對應工具鏈**依步驟產生**,不以二進位大檔隨附,以保持 repo 精簡）:
@@ -225,3 +215,14 @@ MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、Py
 **證據層級**（論文 §5.9 之範圍陳述,非 repo 事項）:M=1 為板上驗證;M=2–4 提供 RTL 模擬（40/40 bit-exact,`RTL/verification/`,合計 43,520 向量）與合成後估計（`Synth_Sweep/`）。準確率為 test 集 best-epoch 操作點,附 last-epoch 交叉檢核腳本。
 
 > 一句話:**重現所需的程式碼、環境版本、步驟均已備妥;大型建置產物依上述步驟由對應工具鏈產生。**
+
+## 授權
+
+MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、PyTorch、FINN 產生之 RTL）保留其原始授權。
+
+## 引用
+
+若使用本專案，請引用碩士論文：
+> Po-Chun Huang, "MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference," Master's Thesis, National Chung Cheng University, 2026.
+
+---

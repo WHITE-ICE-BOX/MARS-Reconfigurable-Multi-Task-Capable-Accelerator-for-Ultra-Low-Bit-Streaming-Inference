@@ -18,7 +18,8 @@ Generates per MVAU:
 """
 import os
 
-BASE = "mvau_pipeline/mvau_adapter"
+import os
+BASE = os.environ.get("MARS_DAT_SRC", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "hardware_assets"))
 
 # MVAU configurations: (N, PE, SIMD, IN_CH, OUT_CH, REDUCTION, data_dir, up_suffix)
 CONFIGS = [

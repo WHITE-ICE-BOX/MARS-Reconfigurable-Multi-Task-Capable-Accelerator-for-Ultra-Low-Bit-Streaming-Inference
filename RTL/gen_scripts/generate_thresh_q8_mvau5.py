@@ -1,3 +1,4 @@
+import os
 # ===========================================================================
 # [交接導向註解]
 # 腳本：產生 MVAU5 的 Q8 threshold + polarity ROM（.dat）。
@@ -25,7 +26,7 @@ needed). conv5's BN = `conv_features.19.*`.
 import os
 import torch
 
-CHECKPOINT = "paper_results/stage1_models/RC_m1_full.tar"
+CHECKPOINT = os.environ.get("MARS_CKPT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "RC_m1_full.tar"))
 OUT_DIR    = "hardware_assets_pe_simd_aligned_new"
 MVAU_IDX   = 5
 BN_PREFIX  = "conv_features.19"

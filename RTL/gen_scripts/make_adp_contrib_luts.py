@@ -24,7 +24,8 @@ MVAUS = {
     3: (16, "mvau3/data/mvau3_alpha_q8.dat", "mvau3/data/mvau3_contrib_lut.dat"),
     4: (16, "mvau4/data/mvau4_alpha_q8.dat", "mvau4/data/mvau4_contrib_lut.dat"),
 }
-ROOT = "mvau_pipeline/mvau_adapter"
+import os
+ROOT = os.environ.get("MARS_DAT_SRC", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "hardware_assets"))
 
 
 def read_alpha(path):

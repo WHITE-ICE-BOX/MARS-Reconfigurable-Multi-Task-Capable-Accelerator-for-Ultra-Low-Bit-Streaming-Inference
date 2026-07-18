@@ -27,15 +27,15 @@ The golden generation:
 import os, sys, math
 
 sys.path.insert(0, "finn_brevitis/brevitas/src")
-sys.path.insert(0, "mvau_pipeline/sw")
+sys.path.insert(0, os.environ.get("MARS_SW_SRC", "."))
 
 import numpy as np
 import torch
 import torch.nn.functional as F
 from models.CNV import cnv
 
-CKPT = "mvau_pipeline/sw/paper_results/stage1_models/RC_m1_full.tar"
-GOLDEN_ROOT = "mvau_pipeline/mvau_adapter"
+CKPT = os.environ.get("MARS_CKPT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "RC_m1_full.tar"))
+GOLDEN_ROOT = os.environ.get("MARS_DAT_SRC", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "hardware_assets"))
 NUM_SAMPLES = 10
 
 # Layer config
