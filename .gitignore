@@ -7,6 +7,7 @@
 *.lot
 *.loa
 *.synctex.gz
+*.xdv
 *.bbl
 *.blg
 *.fls
@@ -16,4 +17,6 @@ __pycache__/
 *.pyc
 # 系統
 .DS_Store
+# 口試私人資料(委員意見/回覆/最終版本 等,不上 github)
+/_口試私人_勿上傳/
 # 注意:論文成品 *.pdf 不忽略(要保留)

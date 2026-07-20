@@ -1,6 +1,6 @@
-# MARS — 具執行時期任務切換之超低位元串流推論可重組加速器架構
+# MARS — 具多任務能力之超低位元串流推論可重組加速器架構
 
-> **MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference**
+> **MARS: A Reconfigurable Multi-Task-Capable Accelerator Architecture for Ultra-Low-Bit Streaming Inference**
 > （MARS = **M**ulti-Branch **A**dapter **R**econfigurable **S**treaming-accelerator）
 > 碩士論文最終版程式碼與數據釋出。論文中每一項實驗與資料驅動圖表的對應程式碼見〈八、論文對應表〉。
 
@@ -108,7 +108,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 
 ## 八、論文對應表（實驗 / 圖表 ↔ 程式碼與數據）
 
-> 論文＝《MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference》最終版。手繪架構示意圖（Fig 3.1–3.3、4.1–4.12、PE 折疊示意、RC in Hardware、Task Switch 流程、FSC 電路）為繪圖軟體製作，無對應程式碼；下表涵蓋所有**實驗與資料驅動圖表**。
+> 論文＝《MARS: A Reconfigurable Multi-Task-Capable Accelerator Architecture for Ultra-Low-Bit Streaming Inference》最終版。手繪架構示意圖（Fig 3.1–3.3、4.1–4.12、PE 折疊示意、RC in Hardware、Task Switch 流程、FSC 電路）為繪圖軟體製作，無對應程式碼；下表涵蓋所有**實驗與資料驅動圖表**。
 
 | 論文位置 | 內容 | 程式碼 | 數據 |
 |---|---|---|---|
@@ -223,6 +223,6 @@ MIT License（見 [`LICENSE`](LICENSE)）;第三方元件（FINN、Brevitas、Py
 ## 引用
 
 若使用本專案，請引用碩士論文：
-> Po-Chun Huang, "MARS: A Reconfigurable Accelerator Architecture with Runtime Task Switching for Ultra-Low-Bit Streaming Inference," Master's Thesis, National Chung Cheng University, 2026.
+> Po-Chun Huang, "MARS: A Reconfigurable Multi-Task-Capable Accelerator Architecture for Ultra-Low-Bit Streaming Inference," Master's Thesis, National Chung Cheng University, 2026.
 
 ---
