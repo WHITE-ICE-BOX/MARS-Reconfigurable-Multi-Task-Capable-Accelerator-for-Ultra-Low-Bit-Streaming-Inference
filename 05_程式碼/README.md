@@ -125,7 +125,7 @@ MARS 把 **Conv-Adapter**（參數高效率遷移學習模組）整合進一個*
 | Table 5.15–5.17、Fig 5.4 / 5.5 | 多分支 M=1–4 合成掃描與權衡圖 | `Synth_Sweep/scripts/gen_multibranch_rtl.py` 等＋`Figures_Analysis/plot_fig5_4_5_5_tradeoff_power.py` | `Synth_Sweep/results_archive/`、`scripts/collect_tables.py` 彙整 |
 | Fig 5.2 | RC 機制層級探查（偏置分佈/前激活/翻轉率） | `Figures_Analysis/rc_probe_fig5_2.py`（GPU 端）＋`plot_rc_mechanism_fig5_2.py` | `Figures_Analysis/rc_probe_out.json` |
 | Fig 5.3 | 佈局圖（Vivado implemented design 截圖） | Vivado GUI（無腳本） | `FPGA/results/` |
-| Table 5.19 / 5.20 | 跨平台吞吐/功耗/能效 | `FPGA/*/board_test_10k.py`（FPGA 端）；GPU/Jetson 量測腳本於已下線之 4090 主機（見論文方法敘述） | `FPGA/results/` |
+| Table 5.19 / 5.20 | 跨平台吞吐/功耗/能效 | FPGA 端腳本因 build 而異：吞吐/能效代表組態為 throughput build `FPGA/MARS_throughput_2ds/`（`batch_test.py` 量吞吐 1866 img/s、`board_test.py` 量精度）；`board_test_10k.py` 僅存在於 compact build `FPGA/MARS_compact_5ds_pe1/`（各資料集 10k 板上精度）。GPU/Jetson 量測腳本於已下線之 4090 主機（見論文方法敘述） | `FPGA/results/` |
 | Table 5.22 / 5.23、§5.6 | 板上五任務切換準確率/資源/1.86 ms | `FPGA/MARS_compact_5ds_pe1/board_test_v3force.py`（板上五任務精度+切換延遲）、`runtime_3ds.py`（切換器）、`gen_3ds_cfg.py`（payload 產生） | `FPGA/MARS_compact_5ds_pe1/runtime_weights/`、`FPGA/results/` |
 | Table 4.2、§4.3–4.5 | Adapter/Super Wrapper/cfg_hub RTL 與驗證 | `RTL/`（部署變體）、`RTL/gen_scripts/`、golden/testbench 於 `FINN_Compile/`＋`RTL/` | `RTL/hardware_assets/` |
 
@@ -163,7 +163,7 @@ python bnn_pynq_train_bitwidth.py --mode adapter --net_bit 1 --dataset SVHN   --
 1. **adapter `.dat` / configuration blob**:**打包成品已在 repo**（`RTL/hardware_assets/` 97 個 `.dat`、`FPGA/.../runtime_weights/` 五任務 blob）,可直接用於模擬與部署。若要從 FINN 匯出之中間 `.dat` 重生:`RTL/gen_scripts/{prepack_adapter_dat,make_adp_contrib_luts,generate_mvau1234_golden}.py`,以環境變數 `MARS_DAT_SRC` 指中間 `.dat` 目錄（golden checkpoint `RC_m1_full.tar` 已隨附於 `gen_scripts/`）。
 2. **RTL 模擬**:`RTL/verification/mvau{1..5}_testbench/`（五模組合計 43,520 向量;golden 由 `export_testbench_data.py` 自硬體佈局權重映像產生）;頂層模擬資產於 `RTL/verification/top_sim/`（`run_sim_top_*.tcl`、輸入 hex、baseline sim log）。
 3. **Vivado 專案重建**:`RTL/tcl/make_project.tcl` → `package_ips.tcl` → `SoC/` block design → `RTL/tcl/build_bitstream.tcl`（OOC cache 注意事項見 `RTL/README.md`）。FINN 產生碼上的最小手動補丁由 `RTL/gen_scripts/patch_finn_ips.py` 自動施加（免 GUI）。
-4. **PYNQ-Z2 部署**:把 `FPGA/<build>/` 整夾放上板,依 `FPGA/README.md` 執行 `board_test_10k.py`（吞吐/精度）與 `board_test_v3force.py`（五任務精度+切換延遲,`sw.switch()` 逐次量測）。
+4. **PYNQ-Z2 部署**:把 `FPGA/<build>/` 整夾放上板,依各夾 `FPGA/README.md` 執行對應量測腳本（**腳本因 build 而異**）:throughput build `MARS_throughput_2ds/` 用 `batch_test.py`（吞吐）、`board_test.py`（精度）;compact build `MARS_compact_5ds_pe1/` 用 `board_test_10k.py`（各資料集 10k 板上精度）、`board_test_v3force.py`（五任務精度+切換延遲,`sw.switch()` 逐次量測）。
 
 ### 9.5 論文表格重現
 見〈八、論文對應表〉:每張實驗表/資料驅動圖對應之 runner、輸出 CSV 與繪圖腳本。彙整層級（多 CSV → 論文表格數字）由 `Synth_Sweep/scripts/collect_tables.py` 與各 `results/README.md` 說明。
