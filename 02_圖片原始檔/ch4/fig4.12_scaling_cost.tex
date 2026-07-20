@@ -1,0 +1,27 @@
+% Figure 4.12  (label fig:scaling_cost)
+% Caption: Conceptual Deployment Cost vs.\ Task/Variant Count: MARS $O(1)$ On-Chip vs.\ Prior Per-Task/Per-Variant Cost (Qualitative; Quantitative Axes Tabulated in Tables~\ref{tab:prior_multitask}--\ref{tab:reconfig_ctrl}).
+% Extracted standalone source of the TikZ figure embedded in MARS_碩士論文.tex
+% Compile: pdflatex fig4.12_scaling_cost.tex
+\documentclass[border=6pt]{standalone}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc, decorations.pathreplacing}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.78\textwidth, height=5.6cm,
+    xlabel={Number of deployed tasks $T$}, ylabel={Per-task deployment cost},
+    xmin=1, xmax=6, ymin=0, ymax=7.5,
+    xtick={1,2,3,4,5,6}, ytick=\empty,
+    axis lines=left,
+    legend style={font=\small, at={(0.5,-0.30)}, anchor=north, draw=none},
+    domain=1:6, samples=6,
+]
+\addplot[thick, red, mark=*] {1+x};
+\addlegendentry{Prior PR/model-selection families (per-task/per-variant)}
+\addplot[thick, blue, mark=square*] {1};
+\addlegendentry{MARS ($O(1)$: single bitstream)}
+\end{axis}
+\end{tikzpicture}
+\end{document}
